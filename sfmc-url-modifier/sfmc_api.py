@@ -468,6 +468,8 @@ class SFMCAPI:
             filtered = [j for j in all_journeys if j.get('definitionType') == 'Transactional']
         elif journey_type == 'welcome':
             filtered = [j for j in all_journeys if 'welcome' in j.get('name', '').lower()]
+        elif journey_type == 'email_change':
+            filtered = all_journeys
         else:
             filtered = all_journeys
 
@@ -1039,8 +1041,23 @@ class SFMCAPI:
         response.raise_for_status()
         return response.json()
 
-    def get_journey_activities(self, journey_id):
-        journey = self.get_journey_by_id(journey_id)
+    def get_journey_by_key(self, journey_key):
+        url = f"{self.base_url}/interaction/v1/interactions/key:{journey_key}"
+        response = self._request_with_auth_retry(
+            'GET',
+            url,
+            headers=self.auth.get_headers(),
+            timeout=30,
+            verify=False
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def get_journey_activities(self, journey_id=None, journey_key=None):
+        if journey_key:
+            journey = self.get_journey_by_key(journey_key)
+        else:
+            journey = self.get_journey_by_id(journey_id)
         email_activities = []
         seen = set()
         transactional_assets = {}
@@ -1411,6 +1428,344 @@ class SFMCAPI:
     # URL REPLACEMENT
     # =====================
 
+
+    def analyze_email_blocks(self, html_content):
+        """
+        Analyse un HTML d'email et retourne logo, stamp, titre.
+        Logo  = 1ère <img> visible dans le body
+        Stamp = 2ème <img> visible dans le body
+        Titre = 1er <td>/<span> visible, hors <a>, <= 20 mots
+        """
+        import re
+        try:
+            from bs4 import BeautifulSoup
+        except ImportError:
+            return {'logo': None, 'stamp': None, 'titre': None}
+
+        soup = BeautifulSoup(html_content, 'html.parser')
+
+        def is_hidden(el):
+            # Vérifie l'élément ET tous ses ancêtres jusqu'au body
+            for node in [el] + list(el.parents):
+                if not hasattr(node, 'get'):
+                    break
+                if node.name in ('body', 'html', '[document]'):
+                    break
+                style = node.get('style', '') or ''
+                if re.search(r'display\s*:\s*none', style, re.I):
+                    return True
+                if re.search(r'visibility\s*:\s*hidden', style, re.I):
+                    return True
+                if re.search(r'opacity\s*:\s*0(?:[^.\d]|$)', style, re.I):
+                    return True
+            return False
+
+        def is_tracking_pixel(img):
+            try:
+                return int(img.get('width', 99)) <= 1 or int(img.get('height', 99)) <= 1
+            except (ValueError, TypeError):
+                return False
+
+        def get_href(img):
+            parent = img.parent
+            while parent and parent.name not in ['body', '[document]']:
+                if parent.name == 'a':
+                    return parent.get('href', None)
+                parent = parent.parent
+            return None
+
+        visible_images = [
+            img for img in soup.find_all('img')
+            if not is_hidden(img) and not is_tracking_pixel(img)
+        ]
+
+        logo = None
+        if len(visible_images) > 0:
+            img = visible_images[0]
+            logo = {
+                'src': img.get('src', ''),
+                'width': img.get('width', ''),
+                'href': get_href(img),
+            }
+
+        stamp = None
+        if len(visible_images) > 1:
+            img = visible_images[1]
+            src = img.get('src', '')
+            stamp = {
+                'src': src,
+                'width': img.get('width', ''),
+                'href': get_href(img),
+                'is_ampscript': bool(re.search(r'%%', src)),
+            }
+
+        titre = None
+        for el in soup.find_all(['td', 'span']):
+            if is_hidden(el):
+                continue
+            if el.find_parent('a'):
+                continue
+            text = el.get_text(separator=' ', strip=True)
+            words = text.split()
+            if 0 < len(words) <= 20:
+                style = el.get('style', '') or ''
+                fs = re.search(r'font-size\s*:\s*([\d.]+\s*(?:px|em|rem|pt)?)', style, re.I)
+                ff = re.search(r'font-family\s*:\s*([^;]+)', style, re.I)
+                co = re.search(r'(?<!\w)color\s*:\s*(#[a-fA-F0-9]{3,6}|[a-zA-Z]+)', style, re.I)
+                titre = {
+                    'texte': text,
+                    'font_size': fs.group(1).strip() if fs else None,
+                    'font_family': ff.group(1).strip() if ff else None,
+                    'color': co.group(1).strip() if co else None,
+                }
+                break
+
+        return {'logo': logo, 'stamp': stamp, 'titre': titre}
+
+    def apply_email_modifications(self, content, mods, return_details=False):
+        if not content or not mods:
+            return (content, []) if return_details else content
+
+        import re
+        bg_value_re = r'(?:#[a-fA-F0-9]{3,8}|rgba?\([^)]+\))'
+
+        def replace_bg_values(text, new_bg):
+            if not text:
+                return text
+            updated = re.sub(
+                rf'(?i)(background-color\s*:\s*){bg_value_re}(\s*!important)?',
+                rf'\1{new_bg}\2',
+                text
+            )
+            updated = re.sub(
+                rf'(?i)(background\s*:\s*){bg_value_re}(\s*!important)?',
+                rf'\1{new_bg}\2',
+                updated
+            )
+            return updated
+
+        def apply_email_modifications_fallback(raw_content, raw_mods):
+            result = raw_content
+            applied = []
+
+            if raw_mods.get('bg_color'):
+                new_bg = raw_mods['bg_color']
+                before_bg = result
+                result = re.sub(
+                    r'(\bbgcolor\s*=\s*["\'])#[a-fA-F0-9]{3,8}(["\'])',
+                    r'\1' + new_bg + r'\2',
+                    result,
+                    flags=re.I
+                )
+                result = replace_bg_values(result, new_bg)
+                if result != before_bg:
+                    applied.append({'type': 'bg_color', 'description': 'Couleur de fond modifiee'})
+                result = re.sub(
+                    r'(?is)(<style\b[^>]*>)(.*?)(</style>)',
+                    lambda m: m.group(1) + replace_bg_values(m.group(2), new_bg) + m.group(3),
+                    result
+                )
+
+            def set_img_src(tag, new_src):
+                if re.search(r'\bsrc\s*=\s*["\'][^"\']*["\']', tag, flags=re.I):
+                    return re.sub(
+                        r'(\bsrc\s*=\s*["\'])[^"\']*(["\'])',
+                        r'\1' + new_src + r'\2',
+                        tag,
+                        flags=re.I
+                    )
+                return re.sub(r'(?i)<img\b', f'<img src="{new_src}"', tag, count=1)
+
+            img_pattern = re.compile(r'<img\b[^>]*>', re.I)
+            img_matches = list(img_pattern.finditer(result))
+
+            visible_indices = []
+            for idx, match in enumerate(img_matches):
+                tag = match.group(0)
+                width_match = re.search(r'\bwidth\s*=\s*["\']?(\d+)', tag, re.I)
+                height_match = re.search(r'\bheight\s*=\s*["\']?(\d+)', tag, re.I)
+                width = int(width_match.group(1)) if width_match else 99
+                height = int(height_match.group(1)) if height_match else 99
+                if width <= 1 or height <= 1:
+                    continue
+                if re.search(r'display\s*:\s*none', tag, re.I):
+                    continue
+                if re.search(r'visibility\s*:\s*hidden', tag, re.I):
+                    continue
+                visible_indices.append(idx)
+
+            replacements = {}
+            if raw_mods.get('new_logo_url') and len(visible_indices) > 0:
+                replacements[visible_indices[0]] = lambda tag: set_img_src(tag, raw_mods['new_logo_url'])
+            if raw_mods.get('new_stamp_url') and len(visible_indices) > 1:
+                replacements[visible_indices[1]] = lambda tag: set_img_src(tag, raw_mods['new_stamp_url'])
+
+            if replacements:
+                rebuilt = []
+                cursor = 0
+                for idx, match in enumerate(img_matches):
+                    rebuilt.append(result[cursor:match.start()])
+                    tag = match.group(0)
+                    rebuilt.append(replacements[idx](tag) if idx in replacements else tag)
+                    cursor = match.end()
+                rebuilt.append(result[cursor:])
+                result = ''.join(rebuilt)
+                if raw_mods.get('new_logo_url') and len(visible_indices) > 0:
+                    applied.append({'type': 'new_logo_url', 'description': 'Logo modifie'})
+                if raw_mods.get('new_stamp_url') and len(visible_indices) > 1:
+                    applied.append({'type': 'new_stamp_url', 'description': 'Stamp modifie'})
+
+            if raw_mods.get('delete_stamp') and len(visible_indices) > 1:
+                stamp_idx = visible_indices[1]
+                if stamp_idx < len(img_matches):
+                    stamp_tag = img_matches[stamp_idx].group(0)
+                    next_result = result.replace(stamp_tag, '', 1)
+                    if next_result != result:
+                        result = next_result
+                        applied.append({'type': 'delete_stamp', 'description': 'Stamp supprime'})
+
+            return result, applied
+
+        try:
+            from bs4 import BeautifulSoup
+        except ImportError:
+            print("  [WARN] BeautifulSoup non installe. Fallback interne pour logo/stamp/fond.")
+            fallback_content, fallback_applied = apply_email_modifications_fallback(content, mods)
+            return (fallback_content, fallback_applied) if return_details else fallback_content
+
+        placeholders = {}
+        applied = []
+
+        def repl_inline(m):
+            key = f'__AMPSCRIPT_INLINE_{len(placeholders)}__'
+            placeholders[key] = m.group(0)
+            return key
+
+        def repl_block(m):
+            key = f'__AMPSCRIPT_BLOCK_{len(placeholders)}__'
+            placeholders[key] = m.group(0)
+            return key
+
+        def repl_var(m):
+            key = f'__AMPSCRIPT_VAR_{len(placeholders)}__'
+            placeholders[key] = m.group(0)
+            return key
+
+        safe_content = re.sub(r'%%=.*?=%%', repl_inline, content, flags=re.DOTALL)
+        safe_content = re.sub(r'%%\[.*?\]%%', repl_block, safe_content, flags=re.DOTALL)
+        safe_content = re.sub(r'%%[a-zA-Z0-9_]+%%', repl_var, safe_content)
+
+        soup = BeautifulSoup(safe_content, 'html.parser')
+
+        def is_hidden(el):
+            # Vérifie l'élément ET tous ses ancêtres jusqu'au body
+            for node in [el] + list(el.parents):
+                if not hasattr(node, 'get'):
+                    break
+                if node.name in ('body', 'html', '[document]'):
+                    break
+                style = node.get('style', '') or ''
+                if re.search(r'display\s*:\s*none', style, re.I):
+                    return True
+                if re.search(r'visibility\s*:\s*hidden', style, re.I):
+                    return True
+                if re.search(r'opacity\s*:\s*0(?:[^.\d]|$)', style, re.I):
+                    return True
+            return False
+
+        def is_tracking_pixel(img):
+            try:
+                return int(img.get('width', 99)) <= 1 or int(img.get('height', 99)) <= 1
+            except (ValueError, TypeError):
+                return False
+
+        if mods.get('bg_color'):
+            new_bg = mods['bg_color']
+            bg_changed = False
+            for el in soup.find_all(style=True):
+                style = el.get('style', '') or ''
+                updated = replace_bg_values(style, new_bg)
+                if updated != style:
+                    el['style'] = updated
+                    bg_changed = True
+            for el in soup.find_all(bgcolor=True):
+                if el.get('bgcolor') != new_bg:
+                    el['bgcolor'] = new_bg
+                    bg_changed = True
+            for style_tag in soup.find_all('style'):
+                if not style_tag.string:
+                    continue
+                updated = replace_bg_values(style_tag.string, new_bg)
+                if updated != style_tag.string:
+                    style_tag.string.replace_with(updated)
+                    bg_changed = True
+            if bg_changed:
+                applied.append({'type': 'bg_color', 'description': 'Couleur de fond modifiee'})
+
+        # Logo = 1ère image visible, Stamp = 2ème image visible
+        images = [
+            img for img in soup.find_all('img')
+            if not is_hidden(img) and not is_tracking_pixel(img)
+        ]
+
+        if mods.get('new_logo_url') and len(images) > 0:
+            if images[0].get('src') != mods['new_logo_url']:
+                images[0]['src'] = mods['new_logo_url']
+                applied.append({'type': 'new_logo_url', 'description': 'Logo modifie'})
+
+        if (mods.get('delete_stamp') or mods.get('new_stamp_url')) and len(images) > 1:
+            stamp_img = images[1]
+            if mods.get('delete_stamp'):
+                # Remonte l'arbre DOM pour trouver la table englobante la plus haute
+                # qui ne contient que cette image (pas d'autres images visibles)
+                to_remove = stamp_img
+                parent = stamp_img.parent
+                while parent and parent.name not in ('body', '[document]'):
+                    if parent.name == 'table':
+                        # Vérifie si cette table contient d'autres images visibles
+                        table_imgs = [i for i in parent.find_all('img') if not is_hidden(i) and not is_tracking_pixel(i)]
+                        if len(table_imgs) > 1:
+                            break  # Cette table contient d'autres images, on s'arrête
+                        to_remove = parent
+                    parent = parent.parent
+                to_remove.decompose()
+                applied.append({'type': 'delete_stamp', 'description': 'Stamp supprime'})
+            elif mods.get('new_stamp_url'):
+                if stamp_img.get('src') != mods['new_stamp_url']:
+                    stamp_img['src'] = mods['new_stamp_url']
+                    applied.append({'type': 'new_stamp_url', 'description': 'Stamp modifie'})
+
+        # Titre = tous les <td>/<span> visibles avec font-size >= 14px, hors <a>, <= 20 mots
+        if mods.get('title_size'):
+            new_size = mods['title_size']
+            if not str(new_size).endswith('px'):
+                new_size = str(new_size) + 'px'
+            title_changed = False
+            for el in soup.find_all(['td', 'span']):
+                if is_hidden(el):
+                    continue
+                if el.find_parent('a'):
+                    continue
+                text = el.get_text(separator=' ', strip=True)
+                words = text.split()
+                if 0 < len(words) <= 20:
+                    style = el.get('style', '') or ''
+                    m = re.search(r'font-size\s*:\s*([\d.]+)', style, re.I)
+                    if m:
+                        current_size = float(m.group(1))
+                        if current_size >= 14:
+                            updated = re.sub(r'(font-size\s*:\s*)[\d.]+\s*(?:px|em|rem|pt)?', r'\g<1>' + new_size, style, flags=re.I)
+                            if updated != style:
+                                el['style'] = updated
+                                title_changed = True
+            if title_changed:
+                applied.append({'type': 'title_size', 'description': 'Taille des titres modifiee'})
+
+        final_content = str(soup)
+        for k, v in placeholders.items():
+            final_content = final_content.replace(k, v)
+
+        return (final_content, applied) if return_details else final_content
     def replace_urls_in_content(self, content, old_pattern, new_pattern, dry_run=True, url_replacements=None):
         """
         Remplace URLs dans HTML et AMPscript.
@@ -1471,7 +1826,7 @@ class SFMCAPI:
 
         return new_content, changes
 
-    def process_email_asset(self, asset_id, old_pattern, new_pattern, dry_run=True, url_replacements=None):
+    def process_email_asset(self, asset_id, old_pattern, new_pattern, dry_run=True, url_replacements=None, email_modifications=None):
         """Traite un email: récupère, modifie, sauvegarde"""
         result = {'asset_id': asset_id, 'name': None, 'changes': [], 'success': False, 'error': None}
 
@@ -1503,6 +1858,23 @@ class SFMCAPI:
 
             # Remplacer
             new_content, changes = self.replace_urls_in_content(html_content, old_pattern, new_pattern, dry_run, url_replacements)
+            
+            if email_modifications:
+                orig_content = new_content
+                mod_result = self.apply_email_modifications(new_content, email_modifications, return_details=True)
+                if isinstance(mod_result, tuple):
+                    new_content, mod_changes = mod_result
+                else:
+                    new_content, mod_changes = mod_result, []
+                if new_content != orig_content:
+                    if mod_changes:
+                        changes.extend(mod_changes)
+                    else:
+                        changes.append({
+                            'type': 'html_modifications',
+                            'description': 'Modifications HTML appliquees'
+                        })
+
             result['changes'] = changes
             result['changes_count'] = len(changes)
 

@@ -193,9 +193,11 @@ def get_journeys():
             patterns = get_url_patterns_for_journey(name)
             result.append({
                 'id': j.get('id'),
+                'key': j.get('key'),
                 'name': name,
                 'status': j.get('status'),
                 'type': j.get('definitionType'),
+                'version': j.get('version'),
                 'modifiedDate': j.get('modifiedDate'),
                 'country': country,
                 'patterns': patterns
@@ -227,6 +229,7 @@ def analyze():
         new_pattern = data.get('new', 'fr-fr')
         url_replacements = data.get('url_replacements', [])
         skip_pattern = data.get('skip_pattern', False)
+        email_modifications = data.get('email_modifications')
         if skip_pattern:
             old_pattern = None
             new_pattern = None
@@ -235,7 +238,7 @@ def analyze():
         results = []
 
         if asset_id:
-            r = api.process_email_asset(asset_id, old_pattern, new_pattern, dry_run=True, url_replacements=url_replacements)
+            r = api.process_email_asset(asset_id, old_pattern, new_pattern, dry_run=True, url_replacements=url_replacements, email_modifications=email_modifications)
             results.append(r)
         elif journey_id:
             activities, journey = api.get_journey_activities(journey_id)
@@ -264,7 +267,7 @@ def analyze():
             for act in activities:
                 aid = extract_asset_id(act)
                 if aid:
-                    r = api.process_email_asset(aid, old_pattern, new_pattern, dry_run=True, url_replacements=url_replacements)
+                    r = api.process_email_asset(aid, old_pattern, new_pattern, dry_run=True, url_replacements=url_replacements, email_modifications=email_modifications)
                     r['activity_name'] = act.get('name')
                     results.append(r)
 
@@ -293,6 +296,7 @@ def execute():
         refresh = data.get('refresh', False)
         url_replacements = data.get('url_replacements', [])
         skip_pattern = data.get('skip_pattern', False)
+        email_modifications = data.get('email_modifications')
         if skip_pattern:
             old_pattern = None
             new_pattern = None
@@ -301,7 +305,7 @@ def execute():
         results = []
 
         if asset_id:
-            r = api.process_email_asset(asset_id, old_pattern, new_pattern, dry_run=False, url_replacements=url_replacements)
+            r = api.process_email_asset(asset_id, old_pattern, new_pattern, dry_run=False, url_replacements=url_replacements, email_modifications=email_modifications)
             results.append(r)
         elif journey_id:
             activities, journey = api.get_journey_activities(journey_id)
@@ -321,7 +325,7 @@ def execute():
             for act in activities:
                 aid = extract_asset_id(act)
                 if aid:
-                    r = api.process_email_asset(aid, old_pattern, new_pattern, dry_run=False, url_replacements=url_replacements)
+                    r = api.process_email_asset(aid, old_pattern, new_pattern, dry_run=False, url_replacements=url_replacements, email_modifications=email_modifications)
                     r['activity_name'] = act.get('name')
                     results.append(r)
 
@@ -360,6 +364,7 @@ def scan():
         new_pattern = data.get('new', 'fr-fr')
         url_replacements = data.get('url_replacements', [])
         skip_pattern = data.get('skip_pattern', False)
+        email_modifications = data.get('email_modifications')
         if skip_pattern:
             old_pattern = None
             new_pattern = None
@@ -396,7 +401,7 @@ def scan():
             if not asset_id:
                 continue
 
-            r = api.process_email_asset(asset_id, old_pattern, new_pattern, dry_run=True, url_replacements=url_replacements)
+            r = api.process_email_asset(asset_id, old_pattern, new_pattern, dry_run=True, url_replacements=url_replacements, email_modifications=email_modifications)
             html_content = ''
             if r.get('changes'):
                 try:
@@ -517,20 +522,22 @@ def get_journey_emails():
         api = get_api()
         data = request.json
         journey_id = data.get('journey_id')
+        journey_key = data.get('journey_key')
 
-        if not journey_id:
-            return jsonify({'success': False, 'error': 'journey_id requis'})
+        if not journey_id and not journey_key:
+            return jsonify({'success': False, 'error': 'journey_id ou journey_key requis'})
 
-        activities, journey = api.get_journey_activities(journey_id)
+        activities, journey = api.get_journey_activities(journey_id=journey_id, journey_key=journey_key)
 
         emails = []
         for act in activities:
             asset_id = extract_asset_id(act)
+
             if asset_id:
                 try:
                     asset = api.get_asset_by_id(asset_id)
                     emails.append({
-                        'asset_id': asset_id,
+                        'asset_id': asset.get('id', asset_id),
                         'activity_id': act.get('activity_id'),
                         'activity_name': act.get('name'),
                         'name': asset.get('name'),
@@ -547,10 +554,214 @@ def get_journey_emails():
 
         return jsonify({
             'success': True,
-            'journey_id': journey_id,
+            'journey_id': journey.get('id', journey_id),
+            'journey_key': journey.get('key', journey_key),
+            'journey_version': journey.get('version'),
+            'journey_type': journey.get('definitionType'),
             'journey_name': journey.get('name', ''),
             'emails': emails,
-            'count': len(emails)
+            'count': len(emails),
+            'activities_found': len(activities)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@app.route('/api/journey-email-open', methods=['POST'])
+def open_journey_email():
+    try:
+        api = get_api()
+        data = request.json or {}
+        journey_key = data.get('journey_key')
+        activity_id = data.get('activity_id')
+        fallback_asset_id = data.get('asset_id')
+
+        if not journey_key or not activity_id:
+            return jsonify({'success': False, 'error': 'journey_key et activity_id requis'})
+
+        activities, journey = api.get_journey_activities(journey_key=journey_key)
+        matching = next((act for act in activities if str(act.get('activity_id')) == str(activity_id)), None)
+        if not matching:
+            return jsonify({'success': False, 'error': 'Email introuvable dans la derniere version de la journey'})
+
+        asset_id = matching.get('asset_id') or extract_asset_id(matching) or fallback_asset_id
+        if not asset_id:
+            return jsonify({'success': False, 'error': 'asset_id introuvable pour cet email'})
+
+        asset = api.get_asset_by_id(asset_id)
+        html = get_asset_html_content(asset)
+        location = None
+        if asset.get('views', {}).get('html', {}).get('content'):
+            location = 'views.html.content'
+        elif asset.get('content'):
+            location = 'content'
+        elif asset.get('data', {}).get('email', {}).get('htmlBody'):
+            location = 'data.email.htmlBody'
+        elif asset.get('htmlbody'):
+            location = 'htmlbody'
+
+        return jsonify({
+            'success': True,
+            'html': html,
+            'name': asset.get('name', ''),
+            'asset_id': asset.get('id', asset_id),
+            'location': location,
+            'journey_id': journey.get('id'),
+            'journey_key': journey.get('key', journey_key),
+            'journey_version': journey.get('version'),
+            'activity_id': matching.get('activity_id'),
+            'activity_name': matching.get('name')
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@app.route('/api/email-change-bulk', methods=['POST'])
+def email_change_bulk():
+    try:
+        api = get_api()
+        data = request.json or {}
+        mode = data.get('mode')
+        journey_keys = data.get('journey_keys', []) or []
+        asset_ids = data.get('asset_ids', []) or []
+        trigger_targets = data.get('trigger_targets', []) or []
+        email_modifications = data.get('email_modifications') or {}
+        seen_asset_ids = set()
+
+        if mode not in ('transactional', 'trigger', 'mixed'):
+            return jsonify({'success': False, 'error': 'mode invalide'})
+
+        if not email_modifications:
+            return jsonify({'success': False, 'error': 'Aucune modification fournie'})
+
+        results = []
+
+        def process_asset(asset_id, extra_fields=None):
+            if asset_id in (None, ''):
+                return None
+            key = str(asset_id)
+            if key in seen_asset_ids:
+                return None
+            seen_asset_ids.add(key)
+
+            r = api.process_email_asset(
+                asset_id,
+                None,
+                None,
+                dry_run=False,
+                email_modifications=email_modifications
+            )
+            if extra_fields:
+                r.update(extra_fields)
+            return r
+
+        if mode in ('transactional', 'mixed') and journey_keys:
+            for journey_key in journey_keys:
+                try:
+                    activities, journey = api.get_journey_activities(journey_key=journey_key)
+                    email_assets = []
+                    seen_assets = set()
+
+                    for act in activities:
+                        aid = act.get('asset_id') or extract_asset_id(act)
+                        if not aid or str(aid) in seen_assets:
+                            continue
+                        seen_assets.add(str(aid))
+                        email_assets.append({
+                            'asset_id': aid,
+                            'activity_name': act.get('name'),
+                            'activity_id': act.get('activity_id')
+                        })
+
+                    if len(email_assets) != 1:
+                        results.append({
+                            'success': False,
+                            'journey_key': journey_key,
+                            'journey_name': journey.get('name', journey_key),
+                            'error': f'Journey transactionnelle attendue avec 1 email, trouve {len(email_assets)}'
+                        })
+                        continue
+
+                    target = email_assets[0]
+                    r = process_asset(target['asset_id'], {
+                        'journey_key': journey_key,
+                        'journey_name': journey.get('name', journey_key),
+                        'activity_name': target.get('activity_name')
+                    })
+                    if r is not None:
+                        results.append(r)
+                except Exception as e:
+                    results.append({
+                        'success': False,
+                        'journey_key': journey_key,
+                        'error': str(e)
+                    })
+
+        if mode in ('trigger', 'mixed'):
+            if trigger_targets:
+                for target in trigger_targets:
+                    journey_key = target.get('journey_key')
+                    activity_id = target.get('activity_id')
+                    fallback_asset_id = target.get('asset_id')
+                    try:
+                        asset_id = fallback_asset_id
+                        activity_name = target.get('activity_name')
+                        journey_name = target.get('journey_name')
+
+                        if journey_key and activity_id:
+                            activities, journey = api.get_journey_activities(journey_key=journey_key)
+                            journey_name = journey.get('name', journey_name or journey_key)
+                            matching = next((act for act in activities if str(act.get('activity_id')) == str(activity_id)), None)
+                            if matching:
+                                activity_name = matching.get('name', activity_name)
+                                asset_id = matching.get('asset_id') or extract_asset_id(matching) or fallback_asset_id
+
+                        if not asset_id:
+                            results.append({
+                                'success': False,
+                                'journey_key': journey_key,
+                                'activity_id': activity_id,
+                                'activity_name': activity_name,
+                                'journey_name': journey_name,
+                                'error': 'asset_id introuvable pour cet email trigger'
+                            })
+                            continue
+
+                        r = process_asset(asset_id, {
+                            'journey_key': journey_key,
+                            'journey_name': journey_name,
+                            'activity_id': activity_id,
+                            'activity_name': activity_name
+                        })
+                        if r is not None:
+                            results.append(r)
+                    except Exception as e:
+                        results.append({
+                            'success': False,
+                            'journey_key': journey_key,
+                            'activity_id': activity_id,
+                            'error': str(e)
+                        })
+            elif asset_ids:
+                for asset_id in asset_ids:
+                    r = process_asset(asset_id)
+                    if r is not None:
+                        results.append(r)
+            elif mode != 'mixed':
+                return jsonify({'success': False, 'error': 'asset_ids ou trigger_targets requis'})
+
+        success_count = sum(1 for r in results if r.get('success'))
+        error_count = sum(1 for r in results if not r.get('success'))
+        changed_count = sum(1 for r in results if r.get('changes'))
+
+        return jsonify({
+            'success': True,
+            'mode': mode,
+            'results': results,
+            'success_count': success_count,
+            'error_count': error_count,
+            'changed_count': changed_count,
+            'total': len(results)
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
@@ -783,6 +994,206 @@ def debug_definition():
         return jsonify({'error': str(e)})
 
 
+@app.route('/api/analyze-blocks', methods=['POST'])
+def analyze_blocks():
+    """Analyse logo, stamp, titre d'un asset email."""
+    try:
+        a = get_api()
+        data = request.json
+        asset_id = data.get('asset_id')
+        html_content = data.get('html')
+
+        if not html_content and asset_id:
+            asset = a.get_asset_by_id(asset_id)
+            html_content = get_asset_html_content(asset)
+
+        if not html_content:
+            return jsonify({'success': False, 'error': 'html ou asset_id requis'})
+
+        blocks = a.analyze_email_blocks(html_content)
+        return jsonify({'success': True, **blocks})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@app.route('/api/asset/<int:asset_id>', methods=['GET'])
+def get_asset_html(asset_id):
+    try:
+        a = get_api()
+        asset = a.get_asset_by_id(asset_id)
+        html = ''
+        location = None
+
+        if 'views' in asset and 'html' in asset['views']:
+            html = asset.get('views', {}).get('html', {}).get('content', '')
+            if html:
+                location = 'views.html.content'
+
+        if not html and 'content' in asset:
+            html = asset.get('content', '')
+            if html:
+                location = 'content'
+
+        if not html and 'data' in asset:
+            html = asset.get('data', {}).get('email', {}).get('htmlBody', '')
+            if html:
+                location = 'data.email.htmlBody'
+
+        if not html:
+            html = asset.get('htmlbody') or ''
+            if html:
+                location = 'htmlbody'
+
+        return jsonify({
+            'success': True,
+            'html': html,
+            'name': asset.get('name', ''),
+            'asset_id': asset.get('id', asset_id),
+            'location': location
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@app.route('/api/asset/<int:asset_id>', methods=['PATCH'])
+def save_asset_html(asset_id):
+    try:
+        a = get_api()
+        data = request.json
+        html_content = data.get('html', '')
+        asset = a.get_asset_by_id(asset_id)
+        actual_asset_id = asset.get('id', asset_id)
+        asset_type = asset.get('assetType', {}).get('name', '') or ''
+
+        current_html = None
+        location = None
+
+        if 'views' in asset and 'html' in asset['views']:
+            current_html = asset.get('views', {}).get('html', {}).get('content', '')
+            if current_html:
+                location = 'views.html.content'
+
+        if not current_html and 'content' in asset:
+            current_html = asset.get('content', '')
+            if current_html:
+                location = 'content'
+
+        if not current_html and 'data' in asset:
+            current_html = asset.get('data', {}).get('email', {}).get('htmlBody', '')
+            if current_html:
+                location = 'data.email.htmlBody'
+
+        if location == 'data.email.htmlBody':
+            payload = {'data': {'email': {'htmlBody': html_content}}}
+        elif location == 'content':
+            payload = {'content': html_content}
+        else:
+            payload = {'views': {'html': {'content': html_content}}}
+
+        result = a.update_asset(actual_asset_id, payload)
+
+        try:
+            verify_asset = a.get_asset_by_id(actual_asset_id)
+            verify_html = get_asset_html_content(verify_asset)
+            verified = len(verify_html) > 0 and verify_html == html_content
+        except Exception:
+            verify_html = ''
+            verified = None
+
+        print(f'[SAVE] asset_id={actual_asset_id} type={asset_type} location={location} '
+              f'sent={len(html_content)} verified={verified} fetched={len(verify_html)}')
+
+        return jsonify({
+            'success': True,
+            'asset_id': actual_asset_id,
+            'location': location or 'views.html.content',
+            'asset_type': asset_type,
+            'verified': verified,
+            'sent_length': len(html_content),
+            'fetched_length': len(verify_html)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@app.route('/api/upload-image', methods=['POST'])
+def upload_image():
+    try:
+        a = get_api()
+        data = request.json
+        original_name = data.get('name', 'image.png')
+        target_name = data.get('target_name')
+        base64_data = data.get('base64', '')
+        mime_type = data.get('mimeType', 'image/png')
+        if mime_type == 'image/webp':
+            mime_type = 'image/png'
+            if original_name.lower().endswith('.webp'):
+                original_name = original_name[:-5] + '.png'
+            if target_name and target_name.lower().endswith('.webp'):
+                target_name = target_name[:-5] + '.png'
+        asset_type_map = {
+            'image/png':  {'name': 'png',  'id': 28},
+            'image/jpeg': {'name': 'jpg',  'id': 23},
+            'image/gif':  {'name': 'gif',  'id': 20},
+        }
+        asset_type = asset_type_map.get(mime_type, {'name': 'png', 'id': 28})
+        import requests as req
+        import time as _time
+        if target_name:
+            name = target_name
+        else:
+            ts = int(_time.time())
+            dot = original_name.rfind('.')
+            if dot >= 0:
+                name = original_name[:dot] + f'_{ts}' + original_name[dot:]
+            else:
+                name = original_name + f'_{ts}'
+
+        url = f"{a.base_url}/asset/v1/content/assets"
+        payload = {
+            'name': name,
+            'assetType': asset_type,
+            'file': base64_data,
+            'fileProperties': {'fileName': name},
+        }
+        response = req.post(url, headers=a.auth.get_headers(), json=payload, timeout=30, verify=False)
+        if not response.ok:
+            return jsonify({'success': False, 'error': f'SFMC {response.status_code}: {response.text}'})
+        result = response.json()
+        asset_id = result.get('id')
+
+        def extract_published_url(asset_data):
+            return (
+                asset_data.get('fileProperties', {}).get('publishedURL') or
+                asset_data.get('fileProperties', {}).get('publishedUrl') or
+                asset_data.get('publishedURL') or
+                asset_data.get('publishedUrl') or
+                ''
+            )
+
+        published_url = extract_published_url(result)
+
+        if asset_id and not published_url:
+            for _ in range(5):
+                _time.sleep(1)
+                try:
+                    uploaded_asset = a.get_asset_by_id(asset_id, try_legacy=False)
+                    published_url = extract_published_url(uploaded_asset)
+                    if published_url:
+                        break
+                except Exception:
+                    pass
+
+        if not published_url:
+            return jsonify({
+                'success': False,
+                'error': "Image uploadée mais publishedURL introuvable immédiatement dans SFMC"
+            })
+        return jsonify({'success': True, 'id': asset_id, 'publishedURL': published_url})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
 @app.errorhandler(400)
 def bad_request(e):
     return jsonify({'success': False, 'error': str(e)}), 400
@@ -811,7 +1222,7 @@ def handle_exception(e):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--port', type=int, default=5001)
+    parser.add_argument('--port', type=int, default=5011)
     args = parser.parse_args()
     # Initialise la connexion SFMC au démarrage
     try:

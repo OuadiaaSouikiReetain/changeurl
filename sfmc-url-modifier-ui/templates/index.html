@@ -1763,6 +1763,662 @@
             .stats { grid-template-columns: 1fr; }
             .action-grid { grid-template-columns: 1fr; }
         }
+
+        /* ─── Email Changement Editor ─────────────────── */
+        .ec-journey-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            padding: 16px;
+        }
+        .ec-journey-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .ec-journey-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(1,118,211,0.12); }
+        .ec-journey-name { font-size: 0.9rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+        .ec-journey-meta { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap; }
+        .ec-email-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+            padding: 16px;
+        }
+        .ec-email-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .ec-email-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(1,118,211,0.12); }
+        .ec-email-icon {
+            width: 38px; height: 38px; border-radius: 8px;
+            background: var(--accent-soft); display: flex;
+            align-items: center; justify-content: center;
+            color: var(--accent); font-size: 1rem; flex-shrink: 0;
+        }
+        .ec-email-name { font-size: 0.85rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+        .ec-email-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+        .ec-segmented {
+            display: inline-flex; gap: 6px; padding: 4px;
+            background: var(--bg-warm); border-radius: 10px; border: 1px solid var(--border);
+            margin-top: 12px;
+        }
+        .ec-segmented button {
+            border: none; background: transparent; color: var(--text-soft);
+            padding: 8px 14px; border-radius: 8px; cursor: pointer;
+            font-size: 0.82rem; font-weight: 600;
+        }
+        .ec-segmented button.active {
+            background: var(--card); color: var(--accent);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .ec-bulk-bar {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg);
+        }
+        .ec-bulk-info {
+            font-size: 0.8rem; color: var(--text-soft);
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        }
+        .ec-bulk-count {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 24px; height: 24px; padding: 0 8px; border-radius: 999px;
+            background: var(--accent-soft); color: var(--accent); font-weight: 700;
+        }
+        .ec-selection-panel {
+            margin: 14px 16px 0;
+            border: 1px solid rgba(1,118,211,0.12);
+            border-radius: 16px;
+            background:
+                linear-gradient(135deg, rgba(1,118,211,0.08), rgba(3,45,96,0.03)),
+                var(--card);
+            box-shadow: 0 12px 28px rgba(3,45,96,0.08);
+            overflow: hidden;
+        }
+        .ec-selection-panel.hidden {
+            display: none;
+        }
+        .ec-selection-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 18px 14px;
+            border-bottom: 1px solid rgba(1,118,211,0.08);
+        }
+        .ec-selection-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .ec-selection-title i {
+            color: var(--accent);
+        }
+        .ec-selection-subtitle {
+            margin-top: 4px;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+        .ec-selection-stats {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .ec-selection-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            margin-top: 12px;
+        }
+        .ec-selection-stat {
+            min-width: 92px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.76);
+            border: 1px solid rgba(1,118,211,0.08);
+            backdrop-filter: blur(4px);
+        }
+        .ec-selection-stat-value {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1;
+        }
+        .ec-selection-stat-label {
+            margin-top: 4px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .ec-selection-list {
+            display: grid;
+            gap: 10px;
+            padding: 14px;
+            max-height: 240px;
+            overflow: auto;
+        }
+        .ec-selection-group {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.7);
+        }
+        .ec-selection-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+            background: linear-gradient(90deg, rgba(1,118,211,0.08), rgba(1,118,211,0.02));
+            border-bottom: 1px solid rgba(1,118,211,0.08);
+        }
+        .ec-selection-group-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-soft);
+        }
+        .ec-selection-group-badge {
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .ec-selection-items {
+            display: grid;
+            gap: 8px;
+            padding: 10px;
+        }
+        .ec-selection-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: white;
+            box-shadow: 0 1px 0 rgba(3,45,96,0.03);
+        }
+        .ec-selection-item.trigger {
+            border-left: 4px solid var(--accent);
+        }
+        .ec-selection-item.transactional {
+            border-left: 4px solid var(--success);
+        }
+        .ec-selection-main {
+            min-width: 0;
+            flex: 1;
+        }
+        .ec-selection-name {
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.35;
+            word-break: break-word;
+        }
+        .ec-selection-route {
+            margin-top: 5px;
+            font-size: 0.75rem;
+            color: var(--text-soft);
+            line-height: 1.45;
+            word-break: break-word;
+        }
+        .ec-selection-route i {
+            color: var(--accent);
+            margin-right: 5px;
+        }
+        .ec-selection-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .ec-route-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+        .ec-route-pill.trigger {
+            background: rgba(1,118,211,0.12);
+            color: var(--accent);
+        }
+        .ec-route-pill.transactional {
+            background: rgba(46,132,74,0.12);
+            color: var(--success);
+        }
+        .ec-selection-empty {
+            padding: 18px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .ec-card-check {
+            width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--card); display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-muted); flex-shrink: 0;
+        }
+        .ec-card-check.active {
+            background: var(--accent); border-color: var(--accent); color: white;
+        }
+        .ec-journey-card.selected,
+        .ec-email-card.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(1,118,211,0.12);
+        }
+        .ec-card-main {
+            display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+        }
+        .ec-card-body {
+            flex: 1; min-width: 0;
+        }
+        .ec-bulk-modal-grid {
+            display: grid; gap: 14px;
+        }
+        .ec-bulk-help {
+            font-size: 0.78rem; color: var(--text-muted); line-height: 1.45;
+        }
+        .ec-file-note {
+            font-size: 0.72rem; color: var(--text-muted); margin-top: 5px;
+        }
+        .ec-editor-header {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 20px; background: var(--card);
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .ec-editor-title {
+            font-size: 0.92rem; font-weight: 600; color: var(--text);
+            flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .ec-editor-layout { display: flex; height: calc(100vh - 125px); overflow: hidden; }
+        .ec-block-panel {
+            width: 220px; flex-shrink: 0; background: var(--card);
+            border-right: 1px solid var(--border); overflow-y: auto;
+        }
+        .ec-editor-panel {
+            width: 290px; flex-shrink: 0; background: var(--card);
+            border-right: 1px solid var(--border); overflow-y: auto;
+        }
+        .ec-preview-panel {
+            flex: 1; background: var(--bg); display: flex;
+            flex-direction: column; padding: 12px; min-width: 0; overflow: hidden;
+        }
+        .ec-panel-title {
+            font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--text-muted);
+            padding: 10px 14px 8px; display: flex; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .ec-preview-wrap {
+            flex: 1; background: white; border-radius: var(--radius);
+            overflow: auto; border: 1px solid var(--border);
+            display: flex; justify-content: center;
+        }
+        .ec-preview-wrap iframe { height: 100%; border: none; transition: width 0.3s ease; }
+        .ec-view-toggle {
+            padding: 2px 10px; border: 1px solid var(--border); border-radius: 4px;
+            background: transparent; font-size: 0.68rem; cursor: pointer;
+            color: var(--text-muted); font-weight: 500;
+        }
+        .ec-view-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .ec-block-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; cursor: pointer; transition: all 0.12s;
+            font-size: 0.8rem; color: var(--text-soft);
+            border-bottom: 1px solid var(--border);
+        }
+        .ec-block-item:hover { background: var(--bg); color: var(--text); }
+        .ec-block-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+        .ec-block-icon {
+            width: 26px; height: 26px; border-radius: 5px;
+            background: var(--bg-warm); display: flex;
+            align-items: center; justify-content: center;
+            font-size: 0.72rem; flex-shrink: 0; color: var(--text-muted);
+        }
+        .ec-block-item.active .ec-block-icon { background: var(--accent); color: white; }
+        .ec-form-group { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+        .ec-form-label {
+            font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 7px; display: block;
+        }
+        .ec-input {
+            width: 100%; padding: 7px 10px; border: 1px solid var(--border);
+            border-radius: var(--radius-sm); font-size: 0.84rem; color: var(--text);
+            background: var(--card); outline: none; font-family: inherit;
+        }
+        .ec-input:focus { border-color: var(--accent); }
+        .ec-input-row { display: flex; gap: 8px; align-items: center; }
+        .ec-input-row .ec-input { width: 68px; }
+        .ec-input-row label { font-size: 0.72rem; color: var(--text-muted); }
+        .ec-upload-btn {
+            display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+            background: var(--accent-soft); color: var(--accent);
+            border: 1px dashed var(--accent); border-radius: var(--radius-sm);
+            cursor: pointer; font-size: 0.82rem; font-weight: 600;
+            width: 100%; justify-content: center; transition: all 0.15s; margin-top: 6px;
+        }
+        .ec-upload-btn:hover { background: var(--accent); color: white; border-style: solid; }
+        .ec-color-row { display: flex; align-items: center; gap: 10px; }
+        .ec-color-preview { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); flex-shrink: 0; }
+        .ec-select {
+            width: 100%; padding: 7px 10px; border: 1px solid var(--border);
+            border-radius: var(--radius-sm); font-size: 0.84rem;
+            color: var(--text); background: var(--card); outline: none; cursor: pointer;
+        }
+        .ec-img-preview {
+            width: 100%; max-height: 72px; object-fit: contain;
+            border-radius: 6px; border: 1px solid var(--border);
+            background: var(--bg); margin-bottom: 8px; display: block;
+        }
+        .ec-btn-danger {
+            display: flex; align-items: center; gap: 6px; padding: 7px 12px;
+            background: var(--danger-soft); color: var(--danger);
+            border: 1px solid var(--danger); border-radius: var(--radius-sm);
+            cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            width: 100%; justify-content: center; transition: all 0.15s; margin-top: 6px;
+        }
+        .ec-btn-danger:hover { background: var(--danger); color: white; }
+        .ec-focus-btn {
+            margin-left: auto; display: flex; align-items: center; gap: 5px;
+            padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border);
+            background: transparent; cursor: pointer; font-size: 0.68rem;
+            font-weight: 600; color: var(--text-muted); white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .ec-focus-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .ec-focus-btn i { font-size: 0.65rem; }
+
+        /* Responsive polish: layout only, no behavior changes */
+        @media (min-width: 769px) {
+            .main {
+                width: calc(100% - 300px);
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 1180px) {
+            .main {
+                padding: 28px 24px;
+            }
+            .ec-editor-layout {
+                height: auto;
+                min-height: calc(100vh - 125px);
+                display: grid;
+                grid-template-columns: minmax(180px, 0.8fr) minmax(240px, 1fr);
+                grid-template-areas:
+                    "blocks editor"
+                    "preview preview";
+                overflow: visible;
+            }
+            .ec-block-panel {
+                grid-area: blocks;
+                width: auto;
+                max-height: 320px;
+                border-right: 1px solid var(--border);
+                border-bottom: 1px solid var(--border);
+            }
+            .ec-editor-panel {
+                grid-area: editor;
+                width: auto;
+                max-height: 320px;
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+            }
+            .ec-preview-panel {
+                grid-area: preview;
+                min-height: 620px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .main {
+                padding: 22px 18px;
+            }
+            .header-top,
+            .card-header,
+            .ec-selection-head,
+            .modal-footer {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .ec-journey-grid,
+            .ec-email-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                padding: 12px;
+            }
+            .ec-selection-stats {
+                justify-content: flex-start;
+                width: 100%;
+            }
+            .ec-selection-stat {
+                flex: 1;
+                min-width: 86px;
+            }
+            .ec-selection-item {
+                flex-direction: column;
+            }
+            .ec-selection-meta {
+                align-items: flex-start;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .modal {
+                width: min(94vw, 720px);
+                max-height: 90vh;
+            }
+            .modal-body {
+                max-height: 62vh;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+            .main {
+                width: 100%;
+                padding: 18px 14px;
+            }
+            .page-title {
+                font-size: 1.28rem;
+            }
+            .btn {
+                padding: 9px 12px;
+                min-height: 38px;
+            }
+            .ec-segmented {
+                width: 100%;
+            }
+            .ec-segmented button {
+                flex: 1;
+                min-width: 0;
+            }
+            .ec-bulk-bar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .ec-bulk-bar > div:last-child {
+                width: 100%;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+            }
+            .ec-editor-header {
+                align-items: stretch;
+                flex-wrap: wrap;
+                padding: 10px 12px;
+            }
+            .ec-editor-title {
+                order: 2;
+                flex-basis: 100%;
+            }
+            .ec-editor-header > div {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+            .ec-editor-layout {
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                height: auto;
+                overflow: visible;
+            }
+            .ec-block-panel,
+            .ec-editor-panel {
+                width: 100%;
+                max-height: none;
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+            }
+            .ec-preview-panel {
+                min-height: 520px;
+                padding: 10px;
+            }
+            .ec-preview-wrap {
+                min-height: 460px;
+            }
+            .ec-view-toggle {
+                padding: 5px 9px;
+            }
+            .ec-selection-panel {
+                margin: 12px 12px 0;
+                border-radius: var(--radius);
+            }
+            .ec-selection-head {
+                padding: 14px;
+            }
+            .ec-selection-list {
+                max-height: 320px;
+                padding: 10px;
+            }
+            .ec-card-main,
+            .ec-email-card {
+                align-items: flex-start;
+            }
+            .modal {
+                width: 96vw;
+                border-radius: var(--radius);
+            }
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+            .modal-footer .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .main {
+                padding: 14px 10px;
+            }
+            .header {
+                margin-bottom: 20px;
+            }
+            .header-top {
+                display: grid;
+                gap: 12px;
+            }
+            .card-header {
+                padding: 14px;
+            }
+            .stats,
+            .results-stats,
+            .action-grid,
+            .ec-journey-grid,
+            .ec-email-grid {
+                grid-template-columns: 1fr;
+            }
+            .ec-journey-grid,
+            .ec-email-grid {
+                padding: 10px;
+            }
+            .ec-journey-card,
+            .ec-email-card {
+                padding: 12px;
+            }
+            .ec-email-card {
+                gap: 10px;
+            }
+            .ec-card-check {
+                width: 30px;
+                height: 30px;
+            }
+            .ec-selection-stats {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 6px;
+            }
+            .ec-selection-stat {
+                min-width: 0;
+                padding: 8px;
+            }
+            .ec-selection-stat-label {
+                font-size: 0.62rem;
+                letter-spacing: 0;
+            }
+            .ec-selection-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .ec-preview-panel {
+                min-height: 460px;
+            }
+            .ec-preview-wrap {
+                min-height: 400px;
+            }
+            .ec-input-row {
+                flex-wrap: wrap;
+            }
+            .ec-input-row .ec-input {
+                flex: 1;
+                min-width: 92px;
+            }
+            .toast-container {
+                left: 10px;
+                right: 10px;
+            }
+            .toast {
+                min-width: 0;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1790,7 +2446,7 @@
             </div>
 
             <div class="nav-section">
-                <div class="nav-title">Filtrer par type</div>
+                <div class="nav-title">Changement d'URL</div>
                 <div class="nav-item active" onclick="setType('welcome', this)">
                     <i class="fas fa-hand-wave"></i>
                     <span>Welcome</span>
@@ -1805,6 +2461,15 @@
                     <i class="fas fa-layer-group"></i>
                     <span>Toutes</span>
                     <span class="nav-badge" id="allCount">0</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Changement d'Email</div>
+                <div class="nav-item" onclick="setType('email_change', this)">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span>Email Changement</span>
+                    <span class="nav-badge" id="emailChangeCount">0</span>
                 </div>
             </div>
 
@@ -1888,6 +2553,7 @@
 
         <!-- Main -->
         <main class="main">
+            <div id="normalView">
             <div class="header">
                 <div class="header-top">
                     <div>
@@ -2059,6 +2725,138 @@
                     </button>
                 </div>
             </div>
+            </div><!-- /normalView -->
+
+            <!-- Email Changement Editor -->
+            <div id="emailEditorView" style="display:none">
+
+                <!-- View 1: Journey list -->
+                <div id="ecViewJourneys">
+                    <div class="header">
+                        <div class="header-top">
+                            <div>
+                                <p class="greeting">Email Changement</p>
+                                <h1 class="page-title">Sélectionner une Journey</h1>
+                                <div class="ec-segmented">
+                                    <button id="ecModeTriggerBtn" class="active" onclick="ecSetJourneyMode('trigger')">Triggers</button>
+                                    <button id="ecModeTransactionalBtn" onclick="ecSetJourneyMode('transactional')">Transactionnel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="ec-bulk-bar" id="ecTransactionalBulkBar" style="display:none">
+                            <div class="ec-bulk-info">
+                                <span>Sélection transactionnelle</span>
+                                <span class="ec-bulk-count" id="ecTransactionalSelectedCount">0</span>
+                                <span>journey(s)</span>
+                            </div>
+                            <div style="display:flex;gap:8px">
+                                <button class="btn btn-ghost btn-sm" onclick="ecClearTransactionalSelection()">Désélectionner</button>
+                            </div>
+                        </div>
+                        <div class="ec-selection-panel hidden" id="ecJourneySelectionSummary"></div>
+                        <div class="search-bar">
+                            <div class="search-input-wrap">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="search-input" id="ecSearchJourney" placeholder="Rechercher une journey..." oninput="ecFilterJourneys()">
+                            </div>
+                        </div>
+                        <div id="ecJourneyListBody">
+                            <div class="empty-state">
+                                <div class="empty-state-icon"><i class="fas fa-plug"></i></div>
+                                <h3>Connectez-vous pour voir les journeys</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View 2: Email list -->
+                <div id="ecViewEmails" style="display:none">
+                    <div class="header">
+                        <div class="header-top">
+                            <div style="display:flex;align-items:center;gap:14px">
+                                <button class="btn btn-ghost" onclick="ecGoToJourneys()">
+                                    <i class="fas fa-arrow-left"></i> Retour
+                                </button>
+                                <div>
+                                    <p class="greeting" id="ecEmailsJourneyName">Journey</p>
+                                    <h1 class="page-title">Sélectionner un Email</h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="ec-bulk-bar" id="ecTriggerBulkBar" style="display:none">
+                            <div class="ec-bulk-info">
+                                <span>Sélection emails</span>
+                                <span class="ec-bulk-count" id="ecTriggerSelectedCount">0</span>
+                                <span>email(s)</span>
+                            </div>
+                            <div style="display:flex;gap:8px">
+                                <button class="btn btn-ghost btn-sm" onclick="ecClearTriggerEmailSelection()">Désélectionner</button>
+                            </div>
+                        </div>
+                        <div class="ec-selection-panel hidden" id="ecEmailSelectionSummary"></div>
+                        <div id="ecEmailListBody">
+                            <div class="empty-state">
+                                <div class="empty-state-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                                <h3>Chargement...</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View 3: Block editor -->
+                <div id="ecViewEditor" style="display:none">
+                    <div class="ec-editor-header">
+                        <button class="btn btn-ghost btn-sm" onclick="ecGoToEmails()">
+                            <i class="fas fa-arrow-left"></i> Retour
+                        </button>
+                        <span class="ec-editor-title" id="ecEditorTitle">Email</span>
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <button class="btn btn-ghost btn-sm" id="ecBtnReset" onclick="ecReset()" style="display:none">
+                                <i class="fas fa-undo"></i> Annuler
+                            </button>
+                            <button class="btn btn-primary btn-sm" id="ecBtnSave" onclick="ecSave()">
+                                <i class="fas fa-save"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ec-editor-layout">
+                        <div class="ec-block-panel">
+                            <div class="ec-panel-title">Blocs détectés</div>
+                            <div id="ecBlockList"></div>
+                        </div>
+                        <div class="ec-editor-panel">
+                            <div class="ec-panel-title">
+                                Éditeur
+                                <button class="ec-focus-btn" id="ecFocusBtn" onclick="ecToggleFocus()" title="Blur les autres blocs dans la prévisualisation">
+                                    <i class="fas fa-eye"></i> Focus
+                                </button>
+                            </div>
+                            <div id="ecEditorForm">
+                                <div style="color:var(--text-muted);font-size:0.84rem;padding:16px">
+                                    Sélectionnez un bloc dans la liste.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ec-preview-panel">
+                            <div class="ec-panel-title">
+                                Prévisualisation
+                                <div style="display:flex;gap:6px;margin-left:auto">
+                                    <button class="ec-view-toggle active" onclick="ecSetPreviewWidth('100%',this)">Desktop</button>
+                                    <button class="ec-view-toggle" onclick="ecSetPreviewWidth('375px',this)">Mobile</button>
+                                </div>
+                            </div>
+                            <div class="ec-preview-wrap">
+                                <iframe id="ecPreviewFrame" sandbox="allow-same-origin" style="width:100%;height:100%;border:none"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /emailEditorView -->
         </main>
     </div>
 
@@ -2134,6 +2932,57 @@
                 <button class="btn btn-ghost" onclick="closeModal('emailsModal')">Annuler</button>
                 <button class="btn btn-primary" onclick="refreshSelectedEmails()" id="btnRefreshSelected" disabled>
                     <i class="fas fa-sync-alt"></i> Rafraîchir la sélection
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="ecBulkModal">
+        <div class="modal" style="max-width:560px">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-layer-group" style="color:var(--sfmc-blue)"></i>
+                    Bulk Email Changement
+                </h2>
+                <button class="modal-close" onclick="closeModal('ecBulkModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="ec-bulk-modal-grid">
+                    <div class="ec-bulk-help" id="ecBulkTargetHelp">
+                        Appliquer les mêmes changements à la sélection.
+                    </div>
+                    <div>
+                        <label class="ec-form-label" for="ecBulkLogoFile">Nouveau logo</label>
+                        <input class="ec-input" type="file" id="ecBulkLogoFile" accept="image/*">
+                        <div class="ec-file-note">Laisser vide pour ne pas changer le logo.</div>
+                    </div>
+                    <div>
+                        <label class="ec-form-label" for="ecBulkStampFile">Nouveau stamp</label>
+                        <input class="ec-input" type="file" id="ecBulkStampFile" accept="image/*">
+                        <div class="ec-file-note">Laisser vide pour ne pas changer le stamp.</div>
+                        <div class="ec-file-note">
+                            <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;margin-top:6px">
+                                <input type="checkbox" id="ecBulkDeleteStamp">
+                                <span>Supprimer le stamp</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="ec-form-label" for="ecBulkBgColor">Nouvelle couleur de fond</label>
+                        <input class="ec-input" type="color" id="ecBulkBgColor" value="#ffffff" style="width:80px;padding:4px">
+                        <div class="ec-file-note">
+                            <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
+                                <input type="checkbox" id="ecBulkApplyBg">
+                                <span>Appliquer la couleur de fond</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('ecBulkModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="ecSubmitBulkChanges()">
+                    <i class="fas fa-bolt"></i> Appliquer
                 </button>
             </div>
         </div>
@@ -2338,7 +3187,8 @@
                     document.getElementById('statusIndicator').className = 'status-indicator online';
                     document.getElementById('statusText').textContent = 'Connecté';
                     toast('Connexion réussie !', 'success');
-                    loadJourneys();
+                    if (currentType === 'email_change') loadEmailChangeJourneys();
+                    else loadJourneys();
                 } else {
                     toast('Erreur: ' + data.error, 'error');
                 }
@@ -2357,7 +3207,8 @@
             const titles = {
                 'welcome': 'Journeys Welcome',
                 'transactional': 'Journeys Transactionnelles',
-                'all': 'Toutes les Journeys'
+                'all': 'Toutes les Journeys',
+                'email_change': 'Journeys Email Changement'
             };
             document.getElementById('listTitle').textContent = titles[type];
 
@@ -2365,8 +3216,15 @@
             document.getElementById('searchInput').value = '';
             searchQuery = '';
 
-            // Reset and reload with new type (uses cache, instant switch)
-            if (connected) loadJourneys(false);
+            if (type === 'email_change') {
+                document.getElementById('normalView').style.display = 'none';
+                document.getElementById('emailEditorView').style.display = '';
+                loadEmailChangeJourneys();
+            } else {
+                document.getElementById('normalView').style.display = '';
+                document.getElementById('emailEditorView').style.display = 'none';
+                if (connected) loadJourneys(false);
+            }
         }
 
         // Load journeys (first page)
@@ -2648,7 +3506,8 @@
             const badges = {
                 'welcome': 'welcomeCount',
                 'transactional': 'transacCount',
-                'all': 'allCount'
+                'all': 'allCount',
+                'email_change': 'emailChangeCount'
             };
             document.getElementById(badges[currentType]).textContent = total;
         }
@@ -3260,6 +4119,1613 @@
 
             hideLoading();
             showRefreshResults(results, successCount, errorCount);
+        }
+
+        // ─── Email Block Editor ────────────────────────────────────
+        let ecAllJourneys = [];
+        let ecFilteredJourneys = [];
+        let ecSelectedJourney = null;
+        let ecEmails = [];
+        let ecAssetId = null;
+        let ecAssetName = '';
+        let ecOriginalHtml = '';
+        let ecCurrentHtml = '';
+        let ecDraftHtml = null;
+        let ecBlocks = [];
+        let ecSelectedBlock = null;
+        let ecIsDirty = false;
+        let ecFocusMode = false;
+        let ecPendingImages = new Map();
+        let ecJourneyMode = 'trigger';
+        let ecSelectedTransactionalJourneys = new Set();
+        let ecSelectedTriggerEmails = new Map();
+        let ecBulkMode = null;
+
+        function ecShowView(view) {
+            document.getElementById('ecViewJourneys').style.display = view === 'journeys' ? '' : 'none';
+            document.getElementById('ecViewEmails').style.display  = view === 'emails'   ? '' : 'none';
+            document.getElementById('ecViewEditor').style.display  = view === 'editor'   ? '' : 'none';
+        }
+
+        function ecIsTransactionalJourney(journey) {
+            return (journey?.type || '').toLowerCase() === 'transactional';
+        }
+
+        function ecApplyJourneyModeFilter() {
+            const q = document.getElementById('ecSearchJourney').value.toLowerCase().trim();
+            const modeFiltered = ecAllJourneys.filter(j =>
+                ecJourneyMode === 'transactional' ? ecIsTransactionalJourney(j) : !ecIsTransactionalJourney(j)
+            );
+            ecFilteredJourneys = q ? modeFiltered.filter(j => j.name.toLowerCase().includes(q)) : modeFiltered;
+            document.getElementById('emailChangeCount').textContent = modeFiltered.length;
+        }
+
+        function ecSetJourneyMode(mode) {
+            ecJourneyMode = mode;
+            document.getElementById('ecModeTriggerBtn').classList.toggle('active', mode === 'trigger');
+            document.getElementById('ecModeTransactionalBtn').classList.toggle('active', mode === 'transactional');
+            document.getElementById('ecTransactionalBulkBar').style.display = mode === 'transactional' ? '' : 'none';
+            ecApplyJourneyModeFilter();
+            renderEcJourneys();
+            ecUpdateTransactionalBulkState();
+        }
+
+        function ecUpdateTransactionalBulkState() {
+            document.getElementById('ecTransactionalSelectedCount').textContent = ecSelectedTransactionalJourneys.size;
+            ecRenderSelectionSummary();
+        }
+
+        function ecToggleTransactionalJourney(id, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            if (ecSelectedTransactionalJourneys.has(id)) ecSelectedTransactionalJourneys.delete(id);
+            else ecSelectedTransactionalJourneys.add(id);
+            renderEcJourneys();
+            ecUpdateTransactionalBulkState();
+        }
+
+        function ecClearTransactionalSelection() {
+            ecSelectedTransactionalJourneys.clear();
+            renderEcJourneys();
+            ecUpdateTransactionalBulkState();
+        }
+
+        function ecUpdateTriggerBulkState() {
+            document.getElementById('ecTriggerBulkBar').style.display = ecJourneyMode === 'trigger' ? '' : 'none';
+            document.getElementById('ecTriggerSelectedCount').textContent = ecSelectedTriggerEmails.size;
+            ecRenderSelectionSummary();
+        }
+
+        function ecGetTriggerSelectionKey(email) {
+            return [
+                email?.journey_key || email?.journey_id || '',
+                email?.activity_id || '',
+                email?.asset_id || ''
+            ].join('::');
+        }
+
+        function ecToggleTriggerEmail(index, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const email = ecEmails[index];
+            if (!email) return;
+            const key = ecGetTriggerSelectionKey(email);
+            if (ecSelectedTriggerEmails.has(key)) ecSelectedTriggerEmails.delete(key);
+            else ecSelectedTriggerEmails.set(key, {
+                ...email,
+                selection_key: key
+            });
+            renderEcEmails();
+            ecUpdateTriggerBulkState();
+        }
+
+        function ecClearTriggerEmailSelection() {
+            ecSelectedTriggerEmails.clear();
+            renderEcEmails();
+            ecUpdateTriggerBulkState();
+        }
+
+        function ecGetSelectedTransactionalJourneys() {
+            return Array.from(ecSelectedTransactionalJourneys)
+                .map(id => ecAllJourneys.find(j => String(j.id) === String(id)))
+                .filter(Boolean);
+        }
+
+        function ecGetSelectedTriggerEmails() {
+            return Array.from(ecSelectedTriggerEmails.values());
+        }
+
+        function ecRenderSelectionSummary() {
+            const triggerItems = ecGetSelectedTriggerEmails();
+            const transactionalItems = ecGetSelectedTransactionalJourneys();
+            const total = triggerItems.length + transactionalItems.length;
+
+            const renderGroup = (title, icon, items, kind) => {
+                if (!items.length) return '';
+                const rows = items.map(item => {
+                    const name = kind === 'trigger'
+                        ? (item.name || item.activity_name || 'Email')
+                        : (item.name || 'Journey');
+                    const route = kind === 'trigger'
+                        ? `${item.journey_name || 'Journey'} / ${item.activity_name || 'Email'}`
+                        : `${item.name || 'Journey'} · Transactionnel`;
+                    const meta = kind === 'trigger'
+                        ? (item.asset_id ? `ID ${item.asset_id}` : 'Trigger')
+                        : (item.version ? `v${item.version}` : 'Transactionnel');
+                    return `
+                        <div class="ec-selection-item ${kind}">
+                            <div class="ec-selection-main">
+                                <div class="ec-selection-name">${esc(name)}</div>
+                                <div class="ec-selection-route"><i class="fas fa-route"></i>${esc(route)}</div>
+                            </div>
+                            <div class="ec-selection-meta">
+                                <span class="ec-route-pill ${kind}">
+                                    <i class="fas ${kind === 'trigger' ? 'fa-bolt' : 'fa-diagram-project'}"></i>
+                                    ${esc(kind === 'trigger' ? 'Trigger' : 'Transactionnel')}
+                                </span>
+                                <span style="font-size:0.7rem;color:var(--text-muted)">${esc(meta)}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                return `
+                    <div class="ec-selection-group">
+                        <div class="ec-selection-group-header">
+                            <div class="ec-selection-group-title">
+                                <i class="fas ${icon}"></i> ${esc(title)}
+                            </div>
+                            <span class="ec-selection-group-badge">${items.length}</span>
+                        </div>
+                        <div class="ec-selection-items">${rows}</div>
+                    </div>
+                `;
+            };
+
+            const html = total === 0 ? `
+                <div class="ec-selection-empty">
+                    <i class="fas fa-layer-group" style="margin-right:6px;color:var(--accent)"></i>
+                    Aucune sélection active
+                </div>
+            ` : `
+                <div class="ec-selection-head">
+                    <div>
+                        <div class="ec-selection-title">
+                            <i class="fas fa-layer-group"></i>
+                            Sélection active
+                        </div>
+                        <div class="ec-selection-subtitle">
+                            ${total} élément(s) sélectionné(s) au total, répartis entre triggers et transactionnels.
+                        </div>
+                    </div>
+                    <div class="ec-selection-stats">
+                        <div class="ec-selection-stat">
+                            <div class="ec-selection-stat-value">${total}</div>
+                            <div class="ec-selection-stat-label">Total</div>
+                        </div>
+                        <div class="ec-selection-stat">
+                            <div class="ec-selection-stat-value">${triggerItems.length}</div>
+                            <div class="ec-selection-stat-label">Triggers</div>
+                        </div>
+                        <div class="ec-selection-stat">
+                            <div class="ec-selection-stat-value">${transactionalItems.length}</div>
+                            <div class="ec-selection-stat-label">Transactionnels</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ec-selection-actions">
+                    <button class="btn btn-primary btn-sm" onclick="ecOpenBulkModal('mixed')">
+                        <i class="fas fa-layer-group"></i> Bulk global (${total})
+                    </button>
+                </div>
+                <div class="ec-selection-list">
+                    ${renderGroup('Triggers sélectionnés', 'fa-bolt', triggerItems, 'trigger')}
+                    ${renderGroup('Transactionnels sélectionnés', 'fa-diagram-project', transactionalItems, 'transactional')}
+                </div>
+            `;
+
+            const journeyBox = document.getElementById('ecJourneySelectionSummary');
+            const emailBox = document.getElementById('ecEmailSelectionSummary');
+            [journeyBox, emailBox].forEach(box => {
+                if (!box) return;
+                box.innerHTML = html;
+                box.classList.toggle('hidden', total === 0);
+            });
+        }
+
+        async function loadEmailChangeJourneys() {
+            ecShowView('journeys');
+            ecSelectedTransactionalJourneys.clear();
+            ecSelectedTriggerEmails.clear();
+            if (!connected) {
+                document.getElementById('ecJourneyListBody').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fas fa-plug"></i></div>
+                        <h3>Pas encore connecté</h3><p>Connectez-vous pour voir les journeys</p>
+                    </div>`;
+                return;
+            }
+            document.getElementById('ecJourneyListBody').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                    <h3>Chargement...</h3>
+                </div>`;
+            try {
+                const res = await fetch('/api/journeys?type=email_change&page=1&page_size=200');
+                const data = await safeJson(res);
+                ecAllJourneys = data.journeys || [];
+                ecApplyJourneyModeFilter();
+                renderEcJourneys();
+                ecUpdateTransactionalBulkState();
+                ecRenderSelectionSummary();
+            } catch (e) {
+                document.getElementById('ecJourneyListBody').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <h3>Erreur</h3><p>${esc(e.message)}</p>
+                    </div>`;
+            }
+        }
+
+        function ecFilterJourneys() {
+            ecApplyJourneyModeFilter();
+            renderEcJourneys();
+        }
+
+        function renderEcJourneys() {
+            const el = document.getElementById('ecJourneyListBody');
+            if (ecFilteredJourneys.length === 0) {
+                el.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fas fa-inbox"></i></div>
+                        <h3>Aucune journey</h3>
+                        <p>Aucune journey trouvée pour ce type</p>
+                    </div>`;
+                return;
+            }
+            el.innerHTML = '<div class="ec-journey-grid">' +
+                ecFilteredJourneys.map(j => {
+                    const idx = ecAllJourneys.indexOf(j);
+                    const statusClass = j.status === 'Running' ? 'running' : j.status === 'Draft' ? 'draft' : 'stopped';
+                    const isTransactional = ecIsTransactionalJourney(j);
+                    const isSelected = ecSelectedTransactionalJourneys.has(j.id);
+                    return `
+                        <div class="ec-journey-card ${isSelected ? 'selected' : ''}" onclick="${isTransactional ? `ecOpenTransactionalJourney(${idx})` : `ecSelectJourney(${idx})`}">
+                            <div class="ec-card-main">
+                                <div class="ec-card-body">
+                                    <div class="ec-journey-name">${esc(j.name)}</div>
+                                    <div class="ec-journey-meta">
+                                        <span class="status-pill ${statusClass}">${esc(j.status || '–')}</span>
+                                        ${j.country ? `<span><i class="fas fa-globe" style="font-size:0.62rem"></i> ${esc(j.country)}</span>` : ''}
+                                        ${j.version ? `<span><i class="fas fa-code-branch" style="font-size:0.62rem"></i> v${esc(String(j.version))}</span>` : ''}
+                                    </div>
+                                </div>
+                                ${isTransactional ? `
+                                    <button class="ec-card-check ${isSelected ? 'active' : ''}" onclick="ecToggleTransactionalJourney('${esc(String(j.id))}', event)" title="Sélectionner pour le bulk">
+                                        <i class="fas ${isSelected ? 'fa-check' : 'fa-plus'}"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>`;
+                }).join('') +
+            '</div>';
+        }
+
+        async function ecSelectJourney(index) {
+            ecSelectedJourney = ecAllJourneys[index];
+            ecShowView('emails');
+            ecUpdateTriggerBulkState();
+            document.getElementById('ecEmailsJourneyName').textContent = ecSelectedJourney.name;
+            document.getElementById('ecEmailListBody').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                    <h3>Chargement des emails...</h3>
+                </div>`;
+            try {
+                const res = await fetch('/api/journey-emails', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        journey_id: ecSelectedJourney.id,
+                        journey_key: ecSelectedJourney.key
+                    })
+                });
+                const data = await safeJson(res);
+                if (!data.success) {
+                    document.getElementById('ecEmailListBody').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                            <h3>Erreur API</h3><p style="font-size:0.8rem;word-break:break-word">${esc(data.error || 'Erreur inconnue')}</p>
+                        </div>`;
+                    return;
+                }
+                ecEmails = (data.emails || []).map(email => ({
+                    ...email,
+                    journey_key: data.journey_key || ecSelectedJourney?.key || null,
+                    journey_name: data.journey_name || ecSelectedJourney?.name || null
+                }));
+                renderEcEmails();
+                ecUpdateTriggerBulkState();
+            } catch (e) {
+                document.getElementById('ecEmailListBody').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <h3>Erreur</h3><p>${esc(e.message)}</p>
+                    </div>`;
+            }
+        }
+
+        async function ecOpenTransactionalJourney(index) {
+            ecSelectedJourney = ecAllJourneys[index];
+            showLoading('Chargement de l\'email transactionnel...');
+            try {
+                const res = await fetch('/api/journey-emails', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        journey_id: ecSelectedJourney.id,
+                        journey_key: ecSelectedJourney.key
+                    })
+                });
+                const data = await safeJson(res);
+                hideLoading();
+                if (!data.success) throw new Error(data.error || 'Erreur chargement');
+                ecEmails = (data.emails || []).map(email => ({
+                    ...email,
+                    journey_key: data.journey_key || ecSelectedJourney?.key || null,
+                    journey_name: data.journey_name || ecSelectedJourney?.name || null
+                }));
+                if (ecEmails.length === 1) {
+                    await ecOpenEmail(0);
+                    return;
+                }
+                ecShowView('emails');
+                document.getElementById('ecEmailsJourneyName').textContent = ecSelectedJourney.name;
+                renderEcEmails();
+                ecUpdateTriggerBulkState();
+            } catch (e) {
+                hideLoading();
+                toast('Erreur chargement: ' + e.message, 'error');
+            }
+        }
+
+        function renderEcEmails() {
+            const el = document.getElementById('ecEmailListBody');
+            if (ecEmails.length === 0) {
+                el.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fas fa-inbox"></i></div>
+                        <h3>Aucun email</h3><p>Aucun email trouvé dans cette journey</p>
+                    </div>`;
+                return;
+            }
+            el.innerHTML = '<div class="ec-email-grid">' +
+                ecEmails.map((email, i) => {
+                    const emailKey = String(email.asset_id);
+                    const selectionKey = ecGetTriggerSelectionKey(email);
+                    const isSelected = ecSelectedTriggerEmails.has(selectionKey);
+                    return `
+                    <div class="ec-email-card ${isSelected ? 'selected' : ''}" onclick="ecOpenEmail(${i})">
+                        <div class="ec-email-icon"><i class="fas fa-envelope"></i></div>
+                        <div class="ec-card-body">
+                            <div class="ec-email-name">${esc(email.name || email.activity_name || 'Email')}</div>
+                            <div class="ec-email-sub"><i class="fas fa-route" style="font-size:0.62rem"></i> ${esc((email.journey_name || 'Journey') + ' / ' + (email.activity_name || 'Email'))}</div>
+                        </div>
+                        <button class="ec-card-check ${isSelected ? 'active' : ''}" onclick="ecToggleTriggerEmail(${i}, event)" title="Sélectionner pour le bulk">
+                            <i class="fas ${isSelected ? 'fa-check' : 'fa-plus'}"></i>
+                        </button>
+                    </div>`;
+                }).join('') +
+            '</div>';
+        }
+
+        function ecGoToJourneys() { ecShowView('journeys'); ecUpdateTransactionalBulkState(); }
+        function ecGoToEmails()   { ecShowView('emails'); ecUpdateTriggerBulkState(); }
+
+        async function ecOpenEmail(index) {
+            const email = ecEmails[index];
+            ecAssetId = email.asset_id;
+            ecShowView('editor');
+            document.getElementById('ecEditorTitle').textContent = email.name || email.activity_name || 'Email';
+            document.getElementById('ecBtnReset').style.display = 'none';
+            ecIsDirty = false;
+            ecFocusMode = false;
+            document.getElementById('ecFocusBtn').classList.remove('active');
+            showLoading('Chargement de l\'email...');
+            try {
+                const res = (email.journey_key && email.activity_id)
+                    ? await fetch('/api/journey-email-open', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            journey_key: email.journey_key,
+                            activity_id: email.activity_id,
+                            asset_id: email.asset_id
+                        })
+                    })
+                    : await fetch(`/api/asset/${ecAssetId}`);
+                const data = await safeJson(res);
+                hideLoading();
+                if (!data.success) throw new Error(data.error || 'Erreur chargement');
+                ecAssetName    = data.name  || '';
+                if (data.asset_id) ecAssetId = data.asset_id;
+                ecOriginalHtml = data.html  || '';
+                ecPendingImages.clear();
+                ecCurrentHtml  = ecOriginalHtml;
+                ecBlocks = ecParseBlocks(ecCurrentHtml);
+                ecSelectedBlock = null;
+                renderEcBlockPanel();
+                renderEcEditorForm(null);
+                ecUpdatePreview();
+            } catch (e) {
+                hideLoading();
+                toast('Erreur chargement: ' + e.message, 'error');
+                ecShowView('emails');
+            }
+        }
+
+        function ecOpenBulkModal(mode) {
+            ecBulkMode = mode;
+            document.getElementById('ecBulkLogoFile').value = '';
+            document.getElementById('ecBulkStampFile').value = '';
+            document.getElementById('ecBulkDeleteStamp').checked = false;
+            document.getElementById('ecBulkApplyBg').checked = false;
+            const triggerCount = ecGetSelectedTriggerEmails().length;
+            const transactionalCount = ecGetSelectedTransactionalJourneys().length;
+            const totalCount = triggerCount + transactionalCount;
+            document.getElementById('ecBulkTargetHelp').textContent =
+                mode === 'mixed'
+                    ? `Appliquer les mêmes changements à ${totalCount} élément(s) sélectionné(s) : ${triggerCount} trigger(s) et ${transactionalCount} transactionnel(s).`
+                    : mode === 'transactional'
+                        ? `Appliquer les mêmes changements à ${ecSelectedTransactionalJourneys.size} journey(s) transactionnelle(s).`
+                        : `Appliquer les mêmes changements à ${triggerCount} email(s) trigger sélectionné(s).`;
+            document.getElementById('ecBulkModal').classList.add('active');
+        }
+
+        function ecReadFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result || ''));
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function ecNormalizeUploadFile(file) {
+            const dataURL = await ecReadFileAsBase64(file);
+
+            if (file.type !== 'image/webp') {
+                return {
+                    name: file.name,
+                    mimeType: file.type,
+                    dataURL
+                };
+            }
+
+            return await new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.naturalWidth || img.width;
+                        canvas.height = img.naturalHeight || img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        resolve({
+                            name: file.name.replace(/\.webp$/i, '.png'),
+                            mimeType: 'image/png',
+                            dataURL: canvas.toDataURL('image/png')
+                        });
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+                img.onerror = reject;
+                img.src = dataURL;
+            });
+        }
+
+        async function ecUploadBulkImage(file) {
+            const normalized = await ecNormalizeUploadFile(file);
+            const base64 = normalized.dataURL.split(',')[1];
+            const resp = await fetch('/api/upload-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: normalized.name,
+                    base64,
+                    mimeType: normalized.mimeType
+                })
+            });
+            const upData = await safeJson(resp);
+            if (!upData.success) throw new Error(upData.error || 'Erreur upload image');
+            return upData.publishedURL;
+        }
+
+        function ecShowBulkResults(data) {
+            const rows = (data.results || []).map(r => {
+                const ok = !!r.success;
+                const title = r.journey_name || r.name || r.asset_id || 'Email';
+                const meta = r.activity_name ? ` - ${r.activity_name}` : '';
+                const detail = ok
+                    ? `${r.changes_count || (r.changes || []).length} modification(s)`
+                    : (r.error || 'Erreur inconnue');
+                return `
+                    <div style="padding:10px 12px;background:var(--bg-warm);border-radius:6px;margin-bottom:6px">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <i class="fas ${ok ? 'fa-check-circle' : 'fa-times-circle'}" style="color:${ok ? 'var(--success)' : 'var(--danger)'}"></i>
+                            <span style="flex:1;font-size:0.85rem">${esc(title)}${esc(meta)}</span>
+                            <span style="font-size:0.76rem;color:var(--text-muted)">${esc(detail)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-layer-group" style="color:#0ea5e9"></i> Résultats bulk';
+            document.getElementById('modalBody').innerHTML = `
+                <div class="results-stats">
+                    <div class="result-stat" style="background:var(--success-soft)">
+                        <div class="result-stat-value" style="color:var(--success)">${data.success_count || 0}</div>
+                        <div class="result-stat-label">Réussies</div>
+                    </div>
+                    <div class="result-stat" style="background:${(data.error_count || 0) > 0 ? 'var(--danger-soft)' : 'var(--bg-warm)'}">
+                        <div class="result-stat-value" style="color:${(data.error_count || 0) > 0 ? 'var(--danger)' : 'var(--text-muted)'}">${data.error_count || 0}</div>
+                        <div class="result-stat-label">Erreurs</div>
+                    </div>
+                </div>
+                <div class="result-section-title" style="margin-top:16px">
+                    <i class="fas fa-list"></i> Détails
+                </div>
+                ${rows}
+            `;
+            document.getElementById('resultsModal').classList.add('active');
+        }
+
+        async function ecSubmitBulkChanges() {
+            const logoFile = document.getElementById('ecBulkLogoFile').files[0];
+            const stampFile = document.getElementById('ecBulkStampFile').files[0];
+            const deleteStamp = document.getElementById('ecBulkDeleteStamp').checked;
+            const applyBg = document.getElementById('ecBulkApplyBg').checked;
+            const bgColor = document.getElementById('ecBulkBgColor').value;
+            const modifications = {};
+
+            if (deleteStamp && stampFile) {
+                toast('Choisissez soit un nouveau stamp, soit la suppression du stamp', 'warning');
+                return;
+            }
+
+            if (!logoFile && !stampFile && !deleteStamp && !applyBg) {
+                toast('Sélectionnez au moins une modification à appliquer', 'warning');
+                return;
+            }
+
+            try {
+                showLoading('Préparation du bulk...');
+                if (logoFile) {
+                    modifications.new_logo_url = await ecUploadBulkImage(logoFile);
+                }
+                if (stampFile) {
+                    modifications.new_stamp_url = await ecUploadBulkImage(stampFile);
+                }
+                if (deleteStamp) {
+                    modifications.delete_stamp = true;
+                }
+                if (applyBg) {
+                    modifications.bg_color = bgColor;
+                }
+
+                const payload = {
+                    mode: ecBulkMode,
+                    email_modifications: modifications
+                };
+
+                if (ecBulkMode === 'transactional') {
+                    payload.journey_keys = ecAllJourneys
+                        .filter(j => ecSelectedTransactionalJourneys.has(j.id))
+                        .map(j => j.key)
+                        .filter(Boolean);
+                } else if (ecBulkMode === 'trigger') {
+                    payload.trigger_targets = Array.from(ecSelectedTriggerEmails.values()).map(email => ({
+                        asset_id: email.asset_id,
+                        activity_id: email.activity_id,
+                        activity_name: email.activity_name,
+                        journey_key: email.journey_key,
+                        journey_name: email.journey_name
+                    }));
+                } else {
+                    payload.journey_keys = ecAllJourneys
+                        .filter(j => ecSelectedTransactionalJourneys.has(j.id))
+                        .map(j => j.key)
+                        .filter(Boolean);
+                    payload.trigger_targets = Array.from(ecSelectedTriggerEmails.values()).map(email => ({
+                        asset_id: email.asset_id,
+                        activity_id: email.activity_id,
+                        activity_name: email.activity_name,
+                        journey_key: email.journey_key,
+                        journey_name: email.journey_name
+                    }));
+                }
+
+                const res = await fetch('/api/email-change-bulk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await safeJson(res);
+                hideLoading();
+                if (!data.success) throw new Error(data.error || 'Erreur bulk');
+
+                closeModal('ecBulkModal');
+                ecShowBulkResults(data);
+
+                if (ecBulkMode === 'transactional') {
+                    ecClearTransactionalSelection();
+                } else if (ecBulkMode === 'trigger') {
+                    ecClearTriggerEmailSelection();
+                } else {
+                    ecSelectedTransactionalJourneys.clear();
+                    ecSelectedTriggerEmails.clear();
+                    renderEcJourneys();
+                    renderEcEmails();
+                    ecUpdateTransactionalBulkState();
+                    ecUpdateTriggerBulkState();
+                }
+            } catch (e) {
+                hideLoading();
+                toast('Erreur: ' + e.message, 'error');
+            }
+        }
+
+        function ecParseBlocks(htmlString) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlString, 'text/html');
+            const blocks = [];
+            const allImgs = Array.from(doc.querySelectorAll('img'));
+
+            function isHiddenImg(img) {
+                let el = img;
+                while (el && el.tagName !== 'BODY' && el.tagName !== 'HTML') {
+                    const s = el.getAttribute('style') || '';
+                    if (/display\s*:\s*none/i.test(s)) return true;
+                    if (/visibility\s*:\s*hidden/i.test(s)) return true;
+                    if (/opacity\s*:\s*0(?:[^.\d]|$)/i.test(s)) return true;
+                    el = el.parentElement;
+                }
+                return false;
+            }
+
+            function isTrackingPixel(img) {
+                const w = parseInt(img.getAttribute('width') || '99');
+                const h = parseInt(img.getAttribute('height') || '99');
+                return (!isNaN(w) && w <= 1) || (!isNaN(h) && h <= 1);
+            }
+
+            function isHiddenEl(el) {
+                let node = el;
+                while (node && node.tagName !== 'BODY' && node.tagName !== 'HTML') {
+                    const s = node.getAttribute('style') || '';
+                    if (/display\s*:\s*none/i.test(s)) return true;
+                    if (/visibility\s*:\s*hidden/i.test(s)) return true;
+                    if (/opacity\s*:\s*0(?:[^.\d]|$)/i.test(s)) return true;
+                    node = node.parentElement;
+                }
+                return false;
+            }
+
+            function parseFontSizePx(el) {
+                const styleAttr = el.getAttribute('style') || '';
+                const inlineMatch = styleAttr.match(/font-size\s*:\s*([\d.]+)px/i);
+                if (inlineMatch) return parseFloat(inlineMatch[1]);
+
+                const classAttr = el.getAttribute('class') || '';
+                let maxSize = 0;
+                classAttr.split(/\s+/).filter(Boolean).forEach(name => {
+                    const m = name.match(/^[tm]_fz(\d+(?:d\d+)?)px$/i);
+                    if (!m) return;
+                    const size = parseFloat(m[1].replace('d', '.'));
+                    if (!isNaN(size)) maxSize = Math.max(maxSize, size);
+                });
+                return maxSize || 0;
+            }
+
+            const visibleImgs = allImgs
+                .map((img, i) => ({ img, domIndex: i }))
+                .filter(({ img }) => !isHiddenImg(img) && !isTrackingPixel(img));
+
+            if (visibleImgs[0]) {
+                const { img, domIndex } = visibleImgs[0];
+                blocks.push({ type: 'logo', label: 'Logo', imgIndex: domIndex,
+                    src: img.getAttribute('src') || '',
+                    originalSrc: img.getAttribute('src') || '',
+                    width: parseInt(img.getAttribute('width') || '200'),
+                    height: parseInt(img.getAttribute('height') || '60') });
+            }
+            if (visibleImgs[1]) {
+                const { img, domIndex } = visibleImgs[1];
+                blocks.push({ type: 'stamp', label: 'Stamp', imgIndex: domIndex,
+                    src: img.getAttribute('src') || '',
+                    originalSrc: img.getAttribute('src') || '',
+                    width: parseInt(img.getAttribute('width') || '200'),
+                    height: parseInt(img.getAttribute('height') || '200') });
+            }
+
+            const seen = new Set(); let bgIdx = 0;
+            const bgLabelCounts = {};
+            const detectBgLabel = el => {
+                const tag = el.tagName.toLowerCase();
+                if (tag === 'body') return 'Fond principal';
+                if (tag === 'span') return 'Fond bouton';
+                let p = el.parentElement;
+                while (p && p.tagName !== 'BODY') {
+                    if (p.tagName === 'A') return 'Fond bouton';
+                    if (p.tagName === 'TABLE') break;
+                    p = p.parentElement;
+                }
+                if (tag === 'td' || tag === 'table') return 'Fond section';
+                return 'Fond';
+            };
+            doc.querySelectorAll('body, [bgcolor], [style*="background"]').forEach(el => {
+                const bgAttr = el.getAttribute('bgcolor');
+                const styleAttr = el.getAttribute('style') || '';
+                const bgM = styleAttr.match(/background(?:-color)?:\s*(#[0-9a-fA-F]{3,8}|rgb\([^)]+\))/);
+                const color = bgAttr || (bgM ? bgM[1].trim() : null);
+                if (!color || seen.has(color)) return;
+                const base = detectBgLabel(el);
+                if (!base) return;
+                seen.add(color);
+                bgLabelCounts[base] = (bgLabelCounts[base] || 0) + 1;
+                const label = bgLabelCounts[base] > 1 ? `${base} ${bgLabelCounts[base]}` : base;
+                blocks.push({ type: 'background', label, bgIndex: bgIdx++, color, scope: 'generic' });
+            });
+
+            return blocks;
+        }
+
+        function ecApplyChange(htmlString, block, changes) {
+            // Escape a string for use inside a RegExp
+            function reEsc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+            // Set/replace a CSS property inside a style="…" substring (no !important in saved HTML)
+            function setCssProp(styleVal, prop, value) {
+                const re = new RegExp(`(?<![\\w-])${reEsc(prop)}\\s*:\\s*[^;]+;?`, 'i');
+                return re.test(styleVal)
+                    ? styleVal.replace(re, `${prop}: ${value};`)
+                    : `${styleVal.trim()}${styleVal.trim() ? ' ' : ''}${prop}: ${value};`;
+            }
+
+            // Update (or insert) a CSS property inside an HTML tag string's style attribute
+            function applyStyleInTag(tag, prop, value) {
+                const replaced = tag.replace(/(\bstyle\s*=\s*)(["'])([^]*?)\2/i, (_, pre, q, styleVal) => {
+                    return `${pre}${q}${setCssProp(styleVal, prop, value)}${q}`;
+                });
+                if (replaced !== tag) return replaced;
+                // No style attribute present — inject before closing > or />
+                return tag.replace(/(\s*\/?>)$/, ` style="${prop}: ${value};"$1`);
+            }
+
+            // Set/replace an HTML attribute value inside a tag string
+            function setAttrInTag(tag, attrName, value) {
+                const re = new RegExp(`\\b${reEsc(attrName)}\\s*=\\s*(?:"[^"]*"|'[^']*'|\\S+)`, 'i');
+                const replacement = `${attrName}="${value}"`;
+                if (re.test(tag)) return tag.replace(re, replacement);
+                // Attribute not present — insert before closing > or />
+                return tag.replace(/(\s*\/?>)$/, ` ${replacement}$1`);
+            }
+
+            // Remove SFMC responsive width classes ([tm]_w\d+p) from a tag string
+            function stripWidthClasses(tag) {
+                return tag.replace(/(\bclass\s*=\s*)(["'])([^]*?)\2/i, (_, pre, q, cls) => {
+                    const cleaned = cls.split(/\s+/).filter(c => c && !/^[tm]_w\d+p$/i.test(c)).join(' ');
+                    return cleaned ? `${pre}${q}${cleaned}${q}` : '';
+                });
+            }
+
+            function stripFontSizeClasses(el) {
+                const classAttr = el.getAttribute('class') || '';
+                const cleaned = classAttr
+                    .split(/\s+/)
+                    .filter(c => c && !/^[tm]_fz\d+(?:d\d+)?px$/i.test(c))
+                    .join(' ');
+                if (cleaned) el.setAttribute('class', cleaned);
+                else el.removeAttribute('class');
+            }
+
+            // ── BACKGROUND ─────────────────────────────────────────────────────────
+            // Pure string replacement — preserves DOCTYPE, AMPscript, and all structure.
+            if (block.type === 'background') {
+                const oldC = block.color;
+                const newC = changes.color;
+                let result = htmlString;
+                // bgcolor="OLD"  (case-insensitive color match)
+                result = result.replace(
+                    new RegExp(`(\\bbgcolor\\s*=\\s*)(["']?)${reEsc(oldC)}\\2`, 'gi'),
+                    `$1"${newC}"`
+                );
+                // background(-color)?: OLD  inside style attributes
+                result = result.replace(
+                    new RegExp(`(background(?:-color)?\\s*:\\s*)${reEsc(oldC)}`, 'gi'),
+                    `$1${newC}`
+                );
+                return result;
+            }
+
+            // ── IMAGES (src / width / height) ──────────────────────────────────────
+            // Find the nth <img> tag via regex and patch only its attributes.
+            // This keeps the rest of the HTML byte-for-byte identical to the original.
+            if ((block.type === 'logo' || block.type === 'stamp' || block.type === 'image') && !changes.deleted) {
+                let count = 0;
+                const target = block.imgIndex;
+                return htmlString.replace(/<img(\s[^>]*)?\/?>/gi, (match) => {
+                    if (count !== target) { count++; return match; }
+                    count++;
+                    let tag = match;
+                    if (changes.src) {
+                        tag = setAttrInTag(tag, 'src', changes.src);
+                    }
+                    if (changes.width !== undefined) {
+                        tag = stripWidthClasses(tag);
+                        tag = setAttrInTag(tag, 'width', changes.width);
+                        tag = applyStyleInTag(tag, 'width', changes.width + 'px');
+                        tag = applyStyleInTag(tag, 'max-width', changes.width + 'px');
+                    }
+                    if (changes.height !== undefined) {
+                        tag = setAttrInTag(tag, 'height', changes.height);
+                        tag = applyStyleInTag(tag, 'height', changes.height + 'px');
+                    }
+                    return tag;
+                });
+            }
+
+            // ── DELETION / TEXT CHANGES ────────────────────────────────────────────
+            // These require DOM traversal. Use DOMParser but preserve the original DOCTYPE.
+            const doctypeMatch = htmlString.match(/^\s*(<!DOCTYPE[^>]*>)/i);
+            const doctype = doctypeMatch ? doctypeMatch[1] + '\n' : '';
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlString, 'text/html');
+
+            function setStyleProp(el, prop, value) {
+                const styleAttr = el.getAttribute('style') || '';
+                const re = new RegExp(`(?<![\\w-])${reEsc(prop)}\\s*:\\s*[^;]+;?`, 'i');
+                const next = re.test(styleAttr)
+                    ? styleAttr.replace(re, `${prop}: ${value};`)
+                    : `${styleAttr.trim()}${styleAttr.trim() ? ' ' : ''}${prop}: ${value};`;
+                el.setAttribute('style', next.trim());
+            }
+
+            if (block.type === 'title' || block.type === 'text') {
+                const titleEl = doc.querySelectorAll(ecGetTextSelectors())[block.domIndex];
+                if (!titleEl) return htmlString;
+                if (typeof changes.text === 'string') titleEl.textContent = changes.text;
+                if (changes.fontSize) {
+                    stripFontSizeClasses(titleEl);
+                    setStyleProp(titleEl, 'font-size', changes.fontSize + 'px !important');
+                }
+            } else if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+                // deletion path
+                const img = doc.querySelectorAll('img')[block.imgIndex];
+                if (!img) return htmlString;
+                let toRemove = img;
+                let el = img.parentElement;
+                while (el && el.tagName !== 'BODY' && el.tagName !== 'HTML') {
+                    if (el.tagName === 'TABLE') {
+                        if (el.querySelectorAll('img').length > 1) break;
+                        toRemove = el;
+                    }
+                    el = el.parentElement;
+                }
+                toRemove.remove();
+            }
+
+            return doctype + doc.documentElement.outerHTML;
+        }
+
+        function renderEcBlockPanel() {
+            const icons = { logo: 'fa-image', stamp: 'fa-stamp', title: 'fa-heading', text: 'fa-font', background: 'fa-fill-drip' };
+            const el = document.getElementById('ecBlockList');
+            if (ecBlocks.length === 0) {
+                el.innerHTML = '<div style="padding:12px;font-size:0.82rem;color:var(--text-muted)">Aucun bloc détecté</div>';
+                return;
+            }
+            el.innerHTML = ecBlocks.map((b, i) => `
+                <div class="ec-block-item ${ecSelectedBlock === i ? 'active' : ''}" onclick="ecSelectBlock(${i})">
+                    <div class="ec-block-icon"><i class="fas ${icons[b.type] || 'fa-cube'}"></i></div>
+                    <div>
+                        <div style="font-size:0.8rem;font-weight:500;line-height:1.3">${b.type === 'title' && b.text ? esc(b.text.length > 40 ? b.text.slice(0, 40) + '…' : b.text) : esc(b.label)}</div>
+                        <div style="font-size:0.68rem;opacity:0.7;text-transform:capitalize">${b.type}</div>
+                    </div>
+                </div>`).join('');
+        }
+
+        function ecSelectBlock(i) {
+            const prevBlock = ecBlocks[ecSelectedBlock];
+            if (prevBlock && prevBlock.__draftDirty) {
+                // Commit pending draft so changes are not silently lost
+                if (ecDraftHtml) {
+                    ecCurrentHtml = ecDraftHtml;
+                    ecDraftHtml = null;
+                }
+                prevBlock.__draftDirty = false;
+            }
+            ecSelectedBlock = i;
+            renderEcBlockPanel();
+            renderEcEditorForm(ecBlocks[i]);
+            ecUpdatePreview();
+        }
+
+        function ecMarkTempDraft() {
+            const block = ecBlocks[ecSelectedBlock];
+            if (!block) return;
+            block.__draftDirty = true;
+            const btn = document.getElementById('ecTempSaveBtn');
+            if (btn) btn.style.display = '';
+        }
+
+        function ecApplyDraftChange() {
+            const block = ecBlocks[ecSelectedBlock];
+            if (!block) return;
+            const changes = {};
+            const previousBgColor = block.type === 'background'
+                ? (block.__previewColor || block.color)
+                : null;
+            if (block.type === 'title' || block.type === 'text') {
+                const text = document.getElementById('ecTitleText')?.value ?? '';
+                const fontSize = parseInt(document.getElementById('ecTitleSize')?.value);
+                changes.text = text;
+                if (!isNaN(fontSize) && fontSize > 0) changes.fontSize = fontSize;
+            } else if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+                const w = parseInt(document.getElementById('ecWidth')?.value);
+                const h = parseInt(document.getElementById('ecHeight')?.value);
+                if (!isNaN(w) && w > 0) changes.width = w;
+                if (!isNaN(h) && h > 0) changes.height = h;
+            } else if (block.type === 'background') {
+                const color = document.getElementById('ecBgColor')?.value;
+                if (color) changes.color = color;
+            }
+            if (!Object.keys(changes).length) return;
+            // Toujours appliqué sur ecCurrentHtml (qui contient tous les saves temporaires)
+            ecDraftHtml = ecApplyChange(ecCurrentHtml, block, changes);
+            block.__draftDirty = true;
+            const btn = document.getElementById('ecTempSaveBtn');
+            if (btn) btn.style.display = '';
+            // Patch direct du DOM de l'iframe (instantané, sans rechargement)
+            // Avec document.write, contentDocument est toujours disponible → pas de fallback
+            if (!ecPatchPreview(block, changes, previousBgColor)) {
+                ecUpdatePreview();
+            }
+        }
+
+        function ecPatchPreview(block, changes, previousBgColor = null) {
+            try {
+                const doc = document.getElementById('ecPreviewFrame')?.contentDocument;
+                if (!doc || !doc.body) return false;
+
+                if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+                    const img = doc.querySelectorAll('img')[block.imgIndex];
+                    if (!img) return false;
+                    if (changes.width !== undefined) {
+                        img.setAttribute('width', String(changes.width));
+                        img.style.setProperty('width', changes.width + 'px', 'important');
+                        img.style.setProperty('max-width', changes.width + 'px', 'important');
+                    }
+                    if (changes.height !== undefined) {
+                        img.setAttribute('height', String(changes.height));
+                        img.style.setProperty('height', changes.height + 'px', 'important');
+                    }
+                } else if (block.type === 'title' || block.type === 'text') {
+                    const el = doc.querySelectorAll(ecGetTextSelectors())[block.domIndex];
+                    if (!el) return false;
+                    if (typeof changes.text === 'string') el.textContent = changes.text;
+                    if (changes.fontSize) {
+                        Array.from(el.classList || []).forEach(cls => {
+                            if (/^[tm]_fz\d+(?:d\d+)?px$/i.test(cls)) el.classList.remove(cls);
+                        });
+                        el.style.setProperty('font-size', changes.fontSize + 'px', 'important');
+                    }
+                } else if (block.type === 'background') {
+                    const matchColor = (previousBgColor || block.__previewColor || block.color || '').toLowerCase();
+                    let patched = false;
+                    for (const el of doc.querySelectorAll('body, [bgcolor],[style*="background"]')) {
+                        const bgAttr = el.getAttribute('bgcolor');
+                        const sAttr = el.getAttribute('style') || '';
+                        const bgM = sAttr.match(/background(?:-color)?:\s*(#[0-9a-fA-F]{3,8}|rgb\([^)]+\))/);
+                        const cur = bgAttr || (bgM ? bgM[1].trim() : null);
+                        if (cur && cur.toLowerCase() === matchColor) {
+                            if (bgAttr) el.setAttribute('bgcolor', changes.color);
+                            el.style.setProperty('background-color', changes.color, 'important');
+                            patched = true;
+                        }
+                    }
+                    if (!patched) return false;
+                    block.__previewColor = changes.color;
+                }
+                return true;
+            } catch (e) { return false; }
+        }
+
+        function renderEcEditorForm(block) {
+            const el = document.getElementById('ecEditorForm');
+            if (!block) {
+                el.innerHTML = '<div style="color:var(--text-muted);font-size:0.84rem;padding:16px">Sélectionnez un bloc dans la liste.</div>';
+                return;
+            }
+            if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+                el.innerHTML = `
+                    <div class="ec-form-group">
+                        <label class="ec-form-label">Image actuelle</label>
+                        ${block.src ? `<img class="ec-img-preview" src="${esc(block.src)}" onerror="this.style.display='none'">` : '<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">Aucune image</div>'}
+                        <label class="ec-upload-btn" for="ecFileInput_${ecSelectedBlock}">
+                            <i class="fas fa-upload"></i> Remplacer l'image
+                        </label>
+                        <input type="file" id="ecFileInput_${ecSelectedBlock}" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none" onchange="ecHandleUpload(event)">
+                        ${block.__pendingUpload ? `<div style="font-size:0.78rem;color:var(--warning);margin-top:8px">Nouvelle image prête à être sauvegardée temporairement</div>` : ''}
+                    </div>
+                    <div class="ec-form-group">
+                        <label class="ec-form-label">Dimensions (px)</label>
+                        <div class="ec-input-row">
+                            <input type="number" class="ec-input" id="ecWidth" min="10" max="800" value="${block.width || ''}" oninput="ecApplyDraftChange()" placeholder="W">
+                            <label>×</label>
+                            <input type="number" class="ec-input" id="ecHeight" min="10" max="600" value="${block.height || ''}" oninput="ecApplyDraftChange()" placeholder="H">
+                        </div>
+                    </div>
+                    ${block.type === 'stamp' ? `<div class="ec-form-group">
+                        <button class="ec-btn-danger" onclick="ecDeleteStamp()">
+                            <i class="fas fa-trash"></i> Supprimer le stamp
+                        </button></div>` : ''}
+                    <div class="ec-form-group">
+                        <button class="btn btn-primary btn-sm" id="ecTempSaveBtn" onclick="ecTempSaveBlock()" style="${block.__draftDirty ? '' : 'display:none'}">
+                            <i class="fas fa-floppy-disk"></i> Sauvegarder temporairement
+                        </button>
+                    </div>`;
+            } else if (block.type === 'title' || block.type === 'text') {
+                el.innerHTML = `
+                    ${block.hasRichHtml ? `<div style="font-size:0.76rem;line-height:1.4;color:var(--warning);background:var(--warning-soft);border-radius:6px;padding:8px 10px;margin-bottom:10px">
+                        Ce bloc contient des liens ou des retours ligne. Modifier tout le texte peut simplifier le HTML interne.
+                    </div>` : ''}
+                    <div class="ec-form-group">
+                        <label class="ec-form-label">Texte</label>
+                        <textarea class="ec-input" id="ecTitleText" rows="4" oninput="ecApplyDraftChange()" placeholder="Texte">${esc(block.text || '')}</textarea>
+                    </div>
+                    <div class="ec-form-group">
+                        <label class="ec-form-label">Taille (px)</label>
+                        <input type="number" class="ec-input" id="ecTitleSize" min="8" max="72" value="${block.fontSize || ''}" oninput="ecApplyDraftChange()" placeholder="23">
+                    </div>
+                    <div class="ec-form-group">
+                        <button class="btn btn-primary btn-sm" id="ecTempSaveBtn" onclick="ecTempSaveBlock()" style="${block.__draftDirty ? '' : 'display:none'}">
+                            <i class="fas fa-floppy-disk"></i> Sauvegarder temporairement
+                        </button>
+                    </div>`;
+            } else if (block.type === 'background') {
+                const safeColor = block.color.startsWith('#') ? block.color : '#ffffff';
+                el.innerHTML = `
+                    <div class="ec-form-group">
+                        <label class="ec-form-label">Couleur de fond</label>
+                        <div class="ec-color-row">
+                            <div class="ec-color-preview" id="ecBgPreview" style="background:${safeColor}"></div>
+                            <input type="color" class="ec-input" id="ecBgColor" value="${safeColor}" oninput="document.getElementById('ecBgPreview').style.background=this.value;ecApplyDraftChange()" style="width:60px;padding:2px">
+                        </div>
+                    </div>
+                    <div class="ec-form-group">
+                        <label class="ec-form-label">Valeur actuelle</label>
+                        <div style="font-family:monospace;font-size:0.8rem;padding:4px 8px;background:var(--bg-warm);border-radius:4px">${esc(block.color)}</div>
+                    </div>
+                    <div class="ec-form-group">
+                        <button class="btn btn-primary btn-sm" id="ecTempSaveBtn" onclick="ecTempSaveBlock()" style="${block.__draftDirty ? '' : 'display:none'}">
+                            <i class="fas fa-floppy-disk"></i> Sauvegarder temporairement
+                        </button>
+                    </div>`;
+            }
+        }
+
+        function ecApplyImgSize() {
+            const block = ecBlocks[ecSelectedBlock];
+            if (!block) return;
+            const w = parseInt(document.getElementById('ecWidth')?.value);
+            const h = parseInt(document.getElementById('ecHeight')?.value);
+            const changes = {};
+            if (!isNaN(w) && w > 0) changes.width = w;
+            if (!isNaN(h) && h > 0) changes.height = h;
+            if (!Object.keys(changes).length) return;
+            ecCurrentHtml = ecApplyChange(ecCurrentHtml, block, changes);
+            if (changes.width)  block.width  = w;
+            if (changes.height) block.height = h;
+            ecMarkDirty(); ecUpdatePreview();
+        }
+
+        function ecApplyBgChange() {
+            const block = ecBlocks[ecSelectedBlock];
+            if (!block) return;
+            const color = document.getElementById('ecBgColor')?.value;
+            ecCurrentHtml = ecApplyChange(ecCurrentHtml, block, { color });
+            block.color = color;
+            ecMarkDirty(); ecUpdatePreview(); renderEcBlockPanel();
+        }
+
+        function ecApplyTitleChange() {
+            const block = ecBlocks[ecSelectedBlock];
+            if (!block || (block.type !== 'title' && block.type !== 'text')) return;
+            const text = document.getElementById('ecTitleText')?.value ?? '';
+            const fontSize = parseInt(document.getElementById('ecTitleSize')?.value);
+            const changes = { text };
+            if (!isNaN(fontSize) && fontSize > 0) changes.fontSize = fontSize;
+            ecCurrentHtml = ecApplyChange(ecCurrentHtml, block, changes);
+            block.text = text;
+            if (!isNaN(fontSize) && fontSize > 0) block.fontSize = fontSize;
+            ecMarkDirty(); ecUpdatePreview(); renderEcBlockPanel();
+        }
+
+        function ecTempSaveBlock() {
+            const block = ecBlocks[ecSelectedBlock];
+            if (!block) return;
+
+            // Track whether the live iframe DOM was already patched (ecPatchPreview ran)
+            // or whether we need a full ecUpdatePreview rebuild.
+            let needsRebuild = false;
+
+            if (ecDraftHtml) {
+                // Draft was built by ecApplyDraftChange → live DOM already patched by ecPatchPreview
+                ecCurrentHtml = ecDraftHtml;
+                ecDraftHtml = null;
+            } else {
+                // No oninput fired (e.g. value pasted, or no change) → read form directly
+                const changes = {};
+                if (block.type === 'title' || block.type === 'text') {
+                    const text = document.getElementById('ecTitleText')?.value ?? '';
+                    const fontSize = parseInt(document.getElementById('ecTitleSize')?.value);
+                    changes.text = text;
+                    if (!isNaN(fontSize) && fontSize > 0) changes.fontSize = fontSize;
+                } else if (block.type === 'background') {
+                    const color = document.getElementById('ecBgColor')?.value;
+                    if (color) changes.color = color;
+                } else if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+                    const w = parseInt(document.getElementById('ecWidth')?.value);
+                    const h = parseInt(document.getElementById('ecHeight')?.value);
+                    if (!isNaN(w) && w > 0) changes.width = w;
+                    if (!isNaN(h) && h > 0) changes.height = h;
+                }
+                if (Object.keys(changes).length) {
+                    ecCurrentHtml = ecApplyChange(ecCurrentHtml, block, changes);
+                    needsRebuild = true;
+                }
+            }
+
+            // Sync metadata du bloc avec l'état actuel du formulaire
+            if (block.type === 'title' || block.type === 'text') {
+                const text = document.getElementById('ecTitleText')?.value ?? '';
+                const fontSize = parseInt(document.getElementById('ecTitleSize')?.value);
+                block.text = text;
+                if (!isNaN(fontSize) && fontSize > 0) block.fontSize = fontSize;
+            } else if (block.type === 'background') {
+                const color = document.getElementById('ecBgColor')?.value;
+                if (color) block.color = color;
+            } else if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+                const w = parseInt(document.getElementById('ecWidth')?.value);
+                const h = parseInt(document.getElementById('ecHeight')?.value);
+                if (!isNaN(w) && w > 0) block.width = w;
+                if (!isNaN(h) && h > 0) block.height = h;
+            }
+
+            if (block.__pendingUpload) {
+                const { dataURL, file } = block.__pendingUpload;
+                ecPendingImages.set(dataURL, {
+                    file,
+                    targetName: ecBuildReplacementImageName(block.originalSrc || block.src, file.name),
+                    blockType: block.type,
+                    imgIndex: block.imgIndex
+                });
+                ecCurrentHtml = ecApplyChange(ecCurrentHtml, block, { src: dataURL });
+                block.src = dataURL;
+                delete block.__pendingUpload;
+                needsRebuild = true;
+            }
+
+            block.__draftDirty = false;
+            ecMarkDirty();
+            renderEcBlockPanel();
+            renderEcEditorForm(block);
+            // Only do a full preview rebuild if the DOM wasn't already patched by ecPatchPreview.
+            // Avoiding document.write here prevents the visual flicker/"reset" the user sees.
+            if (needsRebuild) ecUpdatePreview();
+        }
+
+        function ecSyncSelectedBlockBeforeSave() {
+            const block = ecBlocks[ecSelectedBlock];
+            if (!block) return;
+
+            // Commiter le draft en cours (contient TOUS les changes précédents + courant)
+            if (ecDraftHtml) {
+                ecCurrentHtml = ecDraftHtml;
+                ecDraftHtml = null;
+                block.__draftDirty = false;
+            }
+
+            // Commiter l'image uploadée mais pas encore sauvegardée temporairement
+            if (block.__pendingUpload) {
+                const { dataURL, file } = block.__pendingUpload;
+                ecPendingImages.set(dataURL, {
+                    file,
+                    targetName: ecBuildReplacementImageName(block.originalSrc || block.src, file.name),
+                    blockType: block.type,
+                    imgIndex: block.imgIndex
+                });
+                ecCurrentHtml = ecApplyChange(ecCurrentHtml, block, { src: dataURL });
+                block.src = dataURL;
+                delete block.__pendingUpload;
+                block.__draftDirty = false; // clear so form values are read below
+            }
+
+            if (block.__draftDirty) return;
+
+            if (block.type === 'title' || block.type === 'text') {
+                const text = document.getElementById('ecTitleText')?.value;
+                const fontSize = parseInt(document.getElementById('ecTitleSize')?.value);
+                const changes = {};
+                if (typeof text === 'string' && text !== block.text) {
+                    changes.text = text;
+                    block.text = text;
+                }
+                if (!isNaN(fontSize) && fontSize > 0 && fontSize !== block.fontSize) {
+                    changes.fontSize = fontSize;
+                    block.fontSize = fontSize;
+                }
+                if (Object.keys(changes).length) {
+                    ecCurrentHtml = ecApplyChange(ecCurrentHtml, block, changes);
+                }
+                return;
+            }
+
+            if (block.type === 'background') {
+                const color = document.getElementById('ecBgColor')?.value;
+                if (color && color !== block.color) {
+                    ecCurrentHtml = ecApplyChange(ecCurrentHtml, block, { color });
+                    block.color = color;
+                }
+                return;
+            }
+
+            if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+                const w = parseInt(document.getElementById('ecWidth')?.value);
+                const h = parseInt(document.getElementById('ecHeight')?.value);
+                const changes = {};
+                if (!isNaN(w) && w > 0 && w !== block.width) changes.width = w;
+                if (!isNaN(h) && h > 0 && h !== block.height) changes.height = h;
+                if (Object.keys(changes).length) {
+                    ecCurrentHtml = ecApplyChange(ecCurrentHtml, block, changes);
+                    if (changes.width) block.width = w;
+                    if (changes.height) block.height = h;
+                }
+            }
+        }
+
+        function ecBuildReplacementImageName(oldSrc, uploadedFileName) {
+            const cleanOldSrc = (oldSrc || '').split('?')[0].split('#')[0];
+            const oldBaseName = cleanOldSrc.split('/').pop() || '';
+            const uploadedName = uploadedFileName || 'image.png';
+            const uploadedDot = uploadedName.lastIndexOf('.');
+            const uploadedExt = uploadedDot >= 0 ? uploadedName.slice(uploadedDot) : '.png';
+
+            const oldDot = oldBaseName.lastIndexOf('.');
+            let baseName = oldDot > 0 ? oldBaseName.slice(0, oldDot) : oldBaseName;
+            let ext = oldDot > 0 ? oldBaseName.slice(oldDot) : uploadedExt;
+
+            if (!baseName) {
+                const uploadBase = uploadedDot > 0 ? uploadedName.slice(0, uploadedDot) : 'image';
+                baseName = uploadBase || 'image';
+            }
+            if (!ext) ext = uploadedExt || '.png';
+
+            const now = new Date();
+            const dd = String(now.getDate()).padStart(2, '0');
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const yyyy = String(now.getFullYear());
+            return `${baseName}_${dd}${mm}${yyyy}${ext}`;
+        }
+
+        async function ecHandleUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) { toast('Image trop lourde (max 5MB)', 'error'); return; }
+            const block = ecBlocks[ecSelectedBlock];
+            if (!block) return;
+            try {
+                const dataURL = await new Promise((res, rej) => {
+                    const r = new FileReader();
+                    r.onload  = () => res(r.result);
+                    r.onerror = () => rej(new Error('FileReader error'));
+                    r.readAsDataURL(file);
+                });
+                // Remove old pending entry if replacing same block
+                if (block.src && block.src.startsWith('data:')) ecPendingImages.delete(block.src);
+                // Queue for upload on save
+                block.__pendingUpload = { dataURL, file };
+                block.__draftDirty = true;
+                // Apply data URL directly for instant preview
+                renderEcEditorForm(block);
+                toast('Image chargée — sera envoyée dans SFMC à la sauvegarde', 'warning');
+            } catch (e) {
+                toast('Erreur lecture image: ' + e.message, 'error');
+            }
+        }
+
+        function ecDeleteStamp() {
+            const block = ecBlocks[ecSelectedBlock];
+            if (!block || block.type !== 'stamp') return;
+            if (!confirm('Supprimer le stamp de cet email ?')) return;
+            ecCurrentHtml = ecApplyChange(ecCurrentHtml, block, { deleted: true });
+            ecBlocks = ecParseBlocks(ecCurrentHtml);
+            ecSelectedBlock = null;
+            renderEcBlockPanel(); renderEcEditorForm(null); ecMarkDirty(); ecUpdatePreview();
+            toast('Stamp supprimé', 'success');
+        }
+
+        function ecMarkDirty() {
+            ecIsDirty = true;
+            document.getElementById('ecBtnReset').style.display = '';
+        }
+
+        function ecToggleFocus() {
+            ecFocusMode = !ecFocusMode;
+            const btn = document.getElementById('ecFocusBtn');
+            btn.classList.toggle('active', ecFocusMode);
+            ecUpdatePreview();
+        }
+
+        function ecAnnotatePreviewDoc(doc) {
+            const styleTag = doc.createElement('style');
+            styleTag.textContent = '.__ec_clickable { cursor: pointer !important; } .__ec_selected { outline: 2px solid #0ea5e9 !important; outline-offset: 2px !important; }';
+            (doc.head || doc.documentElement).appendChild(styleTag);
+
+            function markBlockTarget(el, blockIndex) {
+                if (!el) return;
+                el.setAttribute('data-ec-block-index', String(blockIndex));
+                el.classList.add('__ec_clickable');
+                if (blockIndex === ecSelectedBlock) el.classList.add('__ec_selected');
+            }
+
+            function markBgTarget(el, blockIndex) {
+                if (!el) return;
+                if (blockIndex === ecSelectedBlock) el.classList.add('__ec_selected');
+            }
+
+            ecBlocks.forEach((block, blockIndex) => {
+                if (block.type === 'logo' || block.type === 'stamp') {
+                    markBlockTarget(doc.querySelectorAll('img')[block.imgIndex], blockIndex);
+                } else if (block.type === 'title' || block.type === 'text') {
+                    markBlockTarget(doc.querySelectorAll(ecGetTextSelectors())[block.domIndex], blockIndex);
+                } else if (block.type === 'background') {
+                    for (const el of doc.querySelectorAll('body, [bgcolor], [style*="background"]')) {
+                        const bgAttr = el.getAttribute('bgcolor');
+                        const sAttr  = el.getAttribute('style') || '';
+                        const bgM    = sAttr.match(/background(?:-color)?:\s*(#[0-9a-fA-F]{3,8}|rgb\([^)]+\))/);
+                        const color  = bgAttr || (bgM ? bgM[1].trim() : null);
+                        if (color && color.toLowerCase() === block.color.toLowerCase()) {
+                            markBgTarget(el, blockIndex);
+                        }
+                    }
+                }
+            });
+        }
+
+        function ecFindBlockIndex(candidate) {
+            return ecBlocks.findIndex(block => {
+                if ((candidate.type === 'image') && ['logo', 'stamp', 'image'].includes(block.type)) {
+                    return block.imgIndex === candidate.imgIndex;
+                }
+                if ((candidate.type === 'title' || candidate.type === 'text') && ['title', 'text'].includes(block.type)) {
+                    return block.domIndex === candidate.domIndex;
+                }
+                if (candidate.type === 'background' && block.type === 'background') {
+                    return (block.color || '').toLowerCase() === (candidate.color || '').toLowerCase();
+                }
+                return false;
+            });
+        }
+
+        function ecCreateDynamicBlockFromPreviewTarget(target, doc) {
+            function parsePreviewFontSizePx(el) {
+                const styleAttr = el.getAttribute('style') || '';
+                const inlineMatch = styleAttr.match(/font-size\s*:\s*([\d.]+)px/i);
+                if (inlineMatch) return parseFloat(inlineMatch[1]);
+
+                const classAttr = el.getAttribute('class') || '';
+                let maxSize = 0;
+                classAttr.split(/\s+/).filter(Boolean).forEach(name => {
+                    const m = name.match(/^[tm]_fz(\d+(?:d\d+)?)px$/i);
+                    if (!m) return;
+                    const size = parseFloat(m[1].replace('d', '.'));
+                    if (!isNaN(size)) maxSize = Math.max(maxSize, size);
+                });
+                return maxSize || 0;
+            }
+
+            function isMeaningfulTextEl(el) {
+                if (!el || !el.tagName) return false;
+                const tag = el.tagName.toLowerCase();
+                if (!ecGetTextSelectors().split(', ').includes(tag)) return false;
+                const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+                return text.length > 0 && text.length <= 500;
+            }
+
+            function findEditableTextEl(start) {
+                let node = start && start.nodeType === 1 ? start : start?.parentElement;
+                while (node && node.tagName && node.tagName !== 'BODY' && node.tagName !== 'HTML') {
+                    if (isMeaningfulTextEl(node)) return node;
+                    node = node.parentElement;
+                }
+                return null;
+            }
+
+            const img = target.closest('img');
+            if (img) {
+                const imgIndex = Array.from(doc.querySelectorAll('img')).indexOf(img);
+                if (imgIndex >= 0) {
+                    const candidate = {
+                        type: 'image',
+                        label: 'Image',
+                        imgIndex,
+                        src: img.getAttribute('src') || '',
+                        originalSrc: img.getAttribute('src') || '',
+                        width: parseInt(img.getAttribute('width') || '200'),
+                        height: parseInt(img.getAttribute('height') || '200')
+                    };
+                    const existing = ecFindBlockIndex(candidate);
+                    if (existing >= 0) return existing;
+                    ecBlocks.push(candidate);
+                    return ecBlocks.length - 1;
+                }
+            }
+
+            const textEl = findEditableTextEl(target);
+            if (textEl) {
+                const domIndex = Array.from(doc.querySelectorAll(ecGetTextSelectors())).indexOf(textEl);
+                if (domIndex >= 0) {
+                    const existing = ecFindBlockIndex({ type: 'text', domIndex });
+                    if (existing >= 0) return existing;
+                    const text = (textEl.textContent || '').replace(/\s+/g, ' ').trim();
+                    if (!text || text.length > 500) return null;
+                    const fontSize = parsePreviewFontSizePx(textEl);
+                    const candidate = {
+                        type: fontSize >= 18 ? 'title' : 'text',
+                        label: fontSize >= 18 ? 'Titre' : 'Texte',
+                        text,
+                        fontSize: fontSize || null,
+                        domIndex,
+                        hasRichHtml: !!textEl.querySelector('a, br, img, table')
+                    };
+                    ecBlocks.push(candidate);
+                    return ecBlocks.length - 1;
+                }
+            }
+
+            return null;
+        }
+
+        function ecBuildPreviewHtml(html) {
+            return html || '';
+        }
+
+        function ecSetupPreviewDoc(doc) {
+            ecPreviewDoc = doc;
+            doc.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const hit = event.target.closest('[data-ec-block-index]');
+                if (hit) {
+                    const index = parseInt(hit.getAttribute('data-ec-block-index'));
+                    if (!isNaN(index)) { ecSelectBlock(index); return; }
+                }
+                const dynamicIndex = ecCreateDynamicBlockFromPreviewTarget(event.target, doc);
+                if (dynamicIndex !== null) {
+                    renderEcBlockPanel();
+                    ecSelectBlock(dynamicIndex);
+                }
+            }, true);
+        }
+
+        function ecUpdatePreview() {
+            const frame = document.getElementById('ecPreviewFrame');
+            const html = ecBuildPreviewHtml(ecDraftHtml || ecCurrentHtml);
+
+            let doc = null;
+            try { doc = frame.contentDocument || frame.contentWindow?.document; } catch(e) {}
+
+            if (doc) {
+                doc.open('text/html', 'replace');
+                doc.write(html);
+                doc.close();
+                ecAnnotatePreviewDoc(doc);
+                ecSetupPreviewDoc(doc);
+            } else {
+                ecPreviewDoc = null;
+                frame.onload = function() {
+                    const d = frame.contentDocument;
+                    if (d) {
+                        ecAnnotatePreviewDoc(d);
+                        ecSetupPreviewDoc(d);
+                    }
+                };
+                frame.srcdoc = html;
+            }
+        }
+
+        function ecGetTextSelectors() {
+            return 'td, span, div, p, a, font, center, small, strong, b, em, i, u, sub, sup, li, h1, h2, h3, h4, h5, h6';
+        }
+
+        function ecSetPreviewWidth(width, btn) {
+            document.getElementById('ecPreviewFrame').style.width = width;
+            document.querySelectorAll('.ec-view-toggle').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        async function ecSave() {
+            if (!ecAssetId) return;
+            if (!confirm('Confirmer la sauvegarde de cet email ?')) return;
+            ecSyncSelectedBlockBeforeSave();
+            try {
+                // Step 1: upload any pending images and replace data URLs with SFMC CDN URLs
+                if (ecPendingImages.size > 0) {
+                    showLoading('Upload des images...');
+                    for (const [dataURL, pending] of ecPendingImages) {
+                        const { file, targetName, blockType, imgIndex } = pending;
+                        const normalized = await ecNormalizeUploadFile(file);
+                        const base64 = normalized.dataURL.split(',')[1];
+                        const resp = await fetch('/api/upload-image', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: normalized.name,
+                                target_name: targetName,
+                                base64,
+                                mimeType: normalized.mimeType
+                            })
+                        });
+                        const upData = await safeJson(resp);
+                        if (!upData.success) throw new Error(upData.error || 'Erreur upload image');
+                        const publishedURL = upData.publishedURL;
+                        // Update the exact image block in the HTML instead of relying on raw string replacement
+                        ecCurrentHtml = ecApplyChange(ecCurrentHtml, { type: blockType, imgIndex }, { src: publishedURL });
+                        ecBlocks.forEach(b => {
+                            if (b.type === blockType && b.imgIndex === imgIndex && b.src === dataURL) {
+                                b.src = publishedURL;
+                            }
+                        });
+                    }
+                    ecPendingImages.clear();
+                    ecUpdatePreview();
+                }
+
+                // Step 2: save HTML to SFMC
+                showLoading('Sauvegarde en cours...');
+                const res = await fetch(`/api/asset/${ecAssetId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ html: ecCurrentHtml, original_name: ecAssetName })
+                });
+                const data = await safeJson(res);
+                hideLoading();
+                if (!data.success) throw new Error(data.error || 'Erreur sauvegarde');
+                ecOriginalHtml = ecCurrentHtml;
+                ecIsDirty = false;
+                document.getElementById('ecBtnReset').style.display = 'none';
+                toast('Email sauvegarde dans SFMC', 'success');
+            } catch (e) {
+                hideLoading();
+                toast('Erreur: ' + e.message, 'error');
+            }
+        }
+
+        function ecReset() {
+            if (!confirm('Annuler toutes les modifications ?')) return;
+            ecCurrentHtml = ecOriginalHtml;
+            ecBlocks = ecParseBlocks(ecCurrentHtml);
+            ecSelectedBlock = null; ecIsDirty = false;
+            document.getElementById('ecBtnReset').style.display = 'none';
+            renderEcBlockPanel(); renderEcEditorForm(null); ecUpdatePreview();
+            toast('Modifications annulées', 'warning');
         }
 
         function showRefreshResults(results, successCount, errorCount) {
