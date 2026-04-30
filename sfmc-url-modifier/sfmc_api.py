@@ -1434,7 +1434,7 @@ class SFMCAPI:
         Analyse un HTML d'email et retourne logo, stamp, titre.
         Logo  = 1ère <img> visible dans le body
         Stamp = 2ème <img> visible dans le body
-        Titre = 1er <td>/<span> visible, hors <a>, <= 20 mots
+        Titre = 1er bloc texte visible avec une taille de police significative.
         """
         import re
         try:
@@ -1500,25 +1500,35 @@ class SFMCAPI:
             }
 
         titre = None
-        for el in soup.find_all(['td', 'span']):
+        text_tags = ['td', 'span', 'div', 'p', 'font', 'center', 'strong', 'b', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+        for el in soup.find_all(text_tags):
             if is_hidden(el):
                 continue
             if el.find_parent('a'):
                 continue
             text = el.get_text(separator=' ', strip=True)
-            words = text.split()
-            if 0 < len(words) <= 20:
-                style = el.get('style', '') or ''
-                fs = re.search(r'font-size\s*:\s*([\d.]+\s*(?:px|em|rem|pt)?)', style, re.I)
-                ff = re.search(r'font-family\s*:\s*([^;]+)', style, re.I)
-                co = re.search(r'(?<!\w)color\s*:\s*(#[a-fA-F0-9]{3,6}|[a-zA-Z]+)', style, re.I)
-                titre = {
-                    'texte': text,
-                    'font_size': fs.group(1).strip() if fs else None,
-                    'font_family': ff.group(1).strip() if ff else None,
-                    'color': co.group(1).strip() if co else None,
-                }
-                break
+            if not text:
+                continue
+            style = el.get('style', '') or ''
+            fs = re.search(r'font-size\s*:\s*([\d.]+\s*(?:px|em|rem|pt)?)', style, re.I)
+            if not fs and el.name not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
+                continue
+            if fs:
+                try:
+                    size_num = float(re.search(r'[\d.]+', fs.group(1)).group(0))
+                    if size_num < 14:
+                        continue
+                except Exception:
+                    pass
+            ff = re.search(r'font-family\s*:\s*([^;]+)', style, re.I)
+            co = re.search(r'(?<!\w)color\s*:\s*(#[a-fA-F0-9]{3,6}|[a-zA-Z]+)', style, re.I)
+            titre = {
+                'texte': text,
+                'font_size': fs.group(1).strip() if fs else None,
+                'font_family': ff.group(1).strip() if ff else None,
+                'color': co.group(1).strip() if co else None,
+            }
+            break
 
         return {'logo': logo, 'stamp': stamp, 'titre': titre}
 
@@ -1735,29 +1745,30 @@ class SFMCAPI:
                     stamp_img['src'] = mods['new_stamp_url']
                     applied.append({'type': 'new_stamp_url', 'description': 'Stamp modifie'})
 
-        # Titre = tous les <td>/<span> visibles avec font-size >= 14px, hors <a>, <= 20 mots
+        # Titre = tous les blocs texte visibles avec font-size >= 14px, sans limite de longueur.
         if mods.get('title_size'):
             new_size = mods['title_size']
             if not str(new_size).endswith('px'):
                 new_size = str(new_size) + 'px'
             title_changed = False
-            for el in soup.find_all(['td', 'span']):
+            text_tags = ['td', 'span', 'div', 'p', 'font', 'center', 'strong', 'b', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+            for el in soup.find_all(text_tags):
                 if is_hidden(el):
                     continue
                 if el.find_parent('a'):
                     continue
                 text = el.get_text(separator=' ', strip=True)
-                words = text.split()
-                if 0 < len(words) <= 20:
-                    style = el.get('style', '') or ''
-                    m = re.search(r'font-size\s*:\s*([\d.]+)', style, re.I)
-                    if m:
-                        current_size = float(m.group(1))
-                        if current_size >= 14:
-                            updated = re.sub(r'(font-size\s*:\s*)[\d.]+\s*(?:px|em|rem|pt)?', r'\g<1>' + new_size, style, flags=re.I)
-                            if updated != style:
-                                el['style'] = updated
-                                title_changed = True
+                if not text:
+                    continue
+                style = el.get('style', '') or ''
+                m = re.search(r'font-size\s*:\s*([\d.]+)', style, re.I)
+                if m:
+                    current_size = float(m.group(1))
+                    if current_size >= 14:
+                        updated = re.sub(r'(font-size\s*:\s*)[\d.]+\s*(?:px|em|rem|pt)?', r'\g<1>' + new_size, style, flags=re.I)
+                        if updated != style:
+                            el['style'] = updated
+                            title_changed = True
             if title_changed:
                 applied.append({'type': 'title_size', 'description': 'Taille des titres modifiee'})
 

@@ -165,6 +165,11 @@ def connect():
         return jsonify({'success': False, 'error': str(e)})
 
 
+@app.route('/api/status', methods=['GET'])
+def status():
+    return jsonify({'success': True, 'connected': api is not None})
+
+
 @app.route('/api/journeys', methods=['GET'])
 def get_journeys():
     """GET /api/journeys?type=all&page=1&page_size=50&exclude_stopped=true&no_cache=false"""
@@ -1102,6 +1107,19 @@ def save_asset_html(asset_id):
 
         print(f'[SAVE] asset_id={actual_asset_id} type={asset_type} location={location} '
               f'sent={len(html_content)} verified={verified} fetched={len(verify_html)}')
+
+        if verified is False:
+            return jsonify({
+                'success': False,
+                'error': "SFMC a accepte la requete, mais le HTML relu depuis Content Builder ne correspond pas au HTML envoye.",
+                'asset_id': actual_asset_id,
+                'location': location or 'views.html.content',
+                'asset_type': asset_type,
+                'verified': verified,
+                'sent_length': len(html_content),
+                'fetched_length': len(verify_html),
+                'sfmc_result': result
+            })
 
         return jsonify({
             'success': True,

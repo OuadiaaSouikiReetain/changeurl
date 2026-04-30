@@ -3043,6 +3043,7 @@
         }
         updateGreeting();
         renderUrlReplaceList();
+        syncConnectionStatus();
 
         // Pattern preview
         document.getElementById('oldPattern').addEventListener('input', updatePreview);
@@ -3175,6 +3176,24 @@
         }
 
         // Connection
+        function setConnectedState(value) {
+            connected = !!value;
+            document.getElementById('statusIndicator').className = connected
+                ? 'status-indicator online'
+                : 'status-indicator offline';
+            document.getElementById('statusText').textContent = connected ? 'Connecte' : 'Deconnecte';
+        }
+
+        async function syncConnectionStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await safeJson(res);
+                if (data.success) setConnectedState(data.connected);
+            } catch (e) {
+                setConnectedState(false);
+            }
+        }
+
         async function connect() {
             showLoading('Connexion en cours...');
             try {
@@ -3183,8 +3202,7 @@
                 hideLoading();
 
                 if (data.success) {
-                    connected = true;
-                    document.getElementById('statusIndicator').className = 'status-indicator online';
+                    setConnectedState(true);
                     document.getElementById('statusText').textContent = 'Connecté';
                     toast('Connexion réussie !', 'success');
                     if (currentType === 'email_change') loadEmailChangeJourneys();
@@ -3230,8 +3248,11 @@
         // Load journeys (first page)
         async function loadJourneys(forceRefresh = false) {
             if (!connected) {
-                toast('Connectez-vous d\'abord', 'warning');
-                return;
+                await syncConnectionStatus();
+                if (!connected) {
+                    toast('Connectez-vous d\'abord', 'warning');
+                    return;
+                }
             }
 
             // Reset pagination state
@@ -4340,6 +4361,9 @@
             ecShowView('journeys');
             ecSelectedTransactionalJourneys.clear();
             ecSelectedTriggerEmails.clear();
+            if (!connected) {
+                await syncConnectionStatus();
+            }
             if (!connected) {
                 document.getElementById('ecJourneyListBody').innerHTML = `
                     <div class="empty-state">
@@ -5546,7 +5570,7 @@
                 const tag = el.tagName.toLowerCase();
                 if (!ecGetTextSelectors().split(', ').includes(tag)) return false;
                 const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-                return text.length > 0 && text.length <= 500;
+                return text.length > 0;
             }
 
             function findEditableTextEl(start) {
@@ -5585,7 +5609,7 @@
                     const existing = ecFindBlockIndex({ type: 'text', domIndex });
                     if (existing >= 0) return existing;
                     const text = (textEl.textContent || '').replace(/\s+/g, ' ').trim();
-                    if (!text || text.length > 500) return null;
+                    if (!text) return null;
                     const fontSize = parsePreviewFontSizePx(textEl);
                     const candidate = {
                         type: fontSize >= 18 ? 'title' : 'text',
