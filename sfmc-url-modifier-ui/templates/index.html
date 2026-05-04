@@ -2810,7 +2810,7 @@
                 <!-- View 3: Block editor -->
                 <div id="ecViewEditor" style="display:none">
                     <div class="ec-editor-header">
-                        <button class="btn btn-ghost btn-sm" onclick="ecGoToEmails()">
+                        <button class="btn btn-ghost btn-sm" onclick="ecGoToJourneys()">
                             <i class="fas fa-arrow-left"></i> Retour
                         </button>
                         <span class="ec-editor-title" id="ecEditorTitle">Email</span>
@@ -5337,6 +5337,7 @@
                 ecPendingImages.set(dataURL, {
                     file,
                     targetName: ecBuildReplacementImageName(block.originalSrc || block.src, file.name),
+                    sourceUrl: block.originalSrc || block.src || '',
                     blockType: block.type,
                     imgIndex: block.imgIndex
                 });
@@ -5372,6 +5373,7 @@
                 ecPendingImages.set(dataURL, {
                     file,
                     targetName: ecBuildReplacementImageName(block.originalSrc || block.src, file.name),
+                    sourceUrl: block.originalSrc || block.src || '',
                     blockType: block.type,
                     imgIndex: block.imgIndex
                 });
@@ -5694,7 +5696,7 @@
                 if (ecPendingImages.size > 0) {
                     showLoading('Upload des images...');
                     for (const [dataURL, pending] of ecPendingImages) {
-                        const { file, targetName, blockType, imgIndex } = pending;
+                        const { file, targetName, sourceUrl, blockType, imgIndex } = pending;
                         const normalized = await ecNormalizeUploadFile(file);
                         const base64 = normalized.dataURL.split(',')[1];
                         const resp = await fetch('/api/upload-image', {
@@ -5703,6 +5705,7 @@
                             body: JSON.stringify({
                                 name: normalized.name,
                                 target_name: targetName,
+                                source_url: sourceUrl,
                                 base64,
                                 mimeType: normalized.mimeType
                             })

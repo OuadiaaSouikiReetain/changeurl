@@ -1107,6 +1107,56 @@ def save_asset_html(asset_id):
         return jsonify({'success': False, 'error': str(e)})
 
 
+def find_source_image_category(api_client, requests_module, source_url):
+    if not source_url or source_url.startswith('data:'):
+        return None
+
+    from urllib.parse import urlparse, unquote
+
+    clean_url = source_url.split('?', 1)[0].split('#', 1)[0]
+    file_name = unquote(os.path.basename(urlparse(clean_url).path or ''))
+    url = f"{api_client.base_url}/asset/v1/content/assets/query"
+
+    candidate_queries = [
+        {"property": "fileProperties.publishedURL", "simpleOperator": "equal", "value": source_url},
+        {"property": "fileProperties.publishedUrl", "simpleOperator": "equal", "value": source_url},
+        {"property": "publishedURL", "simpleOperator": "equal", "value": source_url},
+        {"property": "publishedUrl", "simpleOperator": "equal", "value": source_url},
+    ]
+    if clean_url != source_url:
+        candidate_queries.extend([
+            {"property": "fileProperties.publishedURL", "simpleOperator": "equal", "value": clean_url},
+            {"property": "fileProperties.publishedUrl", "simpleOperator": "equal", "value": clean_url},
+        ])
+    if file_name:
+        candidate_queries.extend([
+            {"property": "fileProperties.fileName", "simpleOperator": "equal", "value": file_name},
+            {"property": "name", "simpleOperator": "equal", "value": file_name},
+        ])
+
+    for query_part in candidate_queries:
+        try:
+            response = requests_module.post(
+                url,
+                headers=api_client.auth.get_headers(),
+                json={"page": {"page": 1, "pageSize": 1}, "query": query_part},
+                timeout=30,
+                verify=False
+            )
+            if not response.ok:
+                continue
+            items = response.json().get('items', [])
+            if not items:
+                continue
+            category = items[0].get('category') or {}
+            category_id = category.get('id') if isinstance(category, dict) else category
+            if category_id:
+                return {'id': category_id}
+        except Exception:
+            continue
+    return None
+
+
 @app.route('/api/upload-image', methods=['POST'])
 def upload_image():
     try:
@@ -1114,6 +1164,7 @@ def upload_image():
         data = request.json
         original_name = data.get('name', 'image.png')
         target_name = data.get('target_name')
+        source_url = data.get('source_url', '')
         base64_data = data.get('base64', '')
         mime_type = data.get('mimeType', 'image/png')
         if mime_type == 'image/webp':
@@ -1133,20 +1184,24 @@ def upload_image():
         if target_name:
             name = target_name
         else:
-            ts = int(_time.time())
+            from datetime import datetime
+            suffix = datetime.now().strftime('%d%m%Y')
             dot = original_name.rfind('.')
             if dot >= 0:
-                name = original_name[:dot] + f'_{ts}' + original_name[dot:]
+                name = original_name[:dot] + f'_{suffix}' + original_name[dot:]
             else:
-                name = original_name + f'_{ts}'
+                name = original_name + f'_{suffix}'
 
         url = f"{a.base_url}/asset/v1/content/assets"
+        source_category = find_source_image_category(a, req, source_url)
         payload = {
             'name': name,
             'assetType': asset_type,
             'file': base64_data,
             'fileProperties': {'fileName': name},
         }
+        if source_category:
+            payload['category'] = source_category
         response = req.post(url, headers=a.auth.get_headers(), json=payload, timeout=30, verify=False)
         if not response.ok:
             return jsonify({'success': False, 'error': f'SFMC {response.status_code}: {response.text}'})
