@@ -121,15 +121,14 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/api/debug-attrs', methods=['POST'])
-def debug_attrs():
-    """Debug: retourne les attributs DE pour un test send."""
+# Removed endpoint from the public Flask route table.
+def removed_attrs_route():
     try:
         a = get_api()
         data = request.json
         definition_key = data.get('definition_key', 'S-ET-FR-TestApp')
-        contact_email = data.get('contact_email', 'wadiasouiki@gmail.com')
-        contact_key = data.get('contact_key', 'debug-key')
+        contact_email = data.get('contact_email', '')
+        contact_key = data.get('contact_key', '')
         has_method = hasattr(a, 'get_send_def_attributes')
         has_normalize = hasattr(a, '_normalize_de_row')
         attrs = a.get_send_def_attributes(definition_key, contact_email, contact_key) if has_method else {}
@@ -790,10 +789,10 @@ def get_journey_event_key():
             return jsonify({
                 'success': False,
                 'error': 'Aucun API Event trouvé sur cette journey.',
-                'debug_triggers': triggers_raw
+                'trigger_types': [t.get('type', 'inconnu') for t in triggers_raw]
             })
 
-        return jsonify({'success': True, **result, 'debug_triggers': triggers_raw})
+        return jsonify({'success': True, **result})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
@@ -814,14 +813,7 @@ def test_send():
         event_definition_key = data.get('event_definition_key')
         extra_data = data.get('extra_data', {})
 
-        print(f"\n{'*'*70}")
-        print(f"[TEST_SEND] REQUEST recu")
-        print(f"[TEST_SEND] journey_id={journey_id!r}")
-        print(f"[TEST_SEND] contact_key={contact_key!r}")
-        print(f"[TEST_SEND] contact_email={contact_email!r}")
-        print(f"[TEST_SEND] first_name={first_name!r}")
-        print(f"[TEST_SEND] event_definition_key (fourni)={event_definition_key!r}")
-        print(f"[TEST_SEND] extra_data={extra_data}")
+        print(f"[TEST_SEND] request journey_id={journey_id!r} send_type={data.get('send_type')!r}")
 
         if not all([journey_id, contact_key, contact_email]):
             return jsonify({'success': False, 'error': 'journey_id, contact_key et contact_email requis'})
@@ -834,26 +826,19 @@ def test_send():
             print(f"[TEST_SEND] Pas d'event_definition_key fourni -> auto-detection...")
             journey_raw = api.get_journey_by_id(journey_id)
             triggers_raw = journey_raw.get('triggers', [])
-            print(f"[TEST_SEND] triggers_raw={triggers_raw}")
 
             event_info = api.get_journey_event_key(journey_id)
-            print(f"[TEST_SEND] event_info detecte={event_info}")
             if not event_info:
                 trigger_types = [t.get('type', 'inconnu') for t in triggers_raw]
-                print(f"[TEST_SEND] ECHEC: aucun event_info. trigger_types={trigger_types}")
                 return jsonify({
                     'success': False,
                     'error': f'Clé d\'envoi introuvable. Types trouvés: {trigger_types}',
-                    'debug_triggers': triggers_raw
+                    'trigger_types': trigger_types
                 })
             event_definition_key = event_info['event_definition_key']
             send_type = event_info.get('send_type', 'api_event')
             event_schema = event_info.get('schema', [])
-            print(f"[TEST_SEND] event_definition_key auto={event_definition_key!r}")
-            print(f"[TEST_SEND] send_type auto={send_type!r}")
-            print(f"[TEST_SEND] event_schema={event_schema}")
-
-        print(f"[TEST_SEND] send_type final={send_type!r}")
+            print(f"[TEST_SEND] event key auto-detected send_type={send_type!r}")
 
         # Determine early si on va utiliser SOAP (welcome/EmailAudience)
         # pour eviter de generer un UUID inutile dans ce cas
@@ -869,7 +854,6 @@ def test_send():
         import uuid as _uuid
         if send_type != 'transactional' and not _will_use_soap:
             contact_key = f"test-{_uuid.uuid4().hex[:12]}"
-            print(f"[TEST_SEND] contact_key unique genere (api_event): {contact_key!r}")
 
         if send_type == 'transactional':
             # Pour transactional : récupère les attributs requis depuis la DE de la send definition
@@ -880,7 +864,6 @@ def test_send():
             if first_name and not any(k in merged for k in ['firstname', 'firstName', 'FirstName']):
                 merged['firstname'] = first_name
             extra_data = merged
-            print(f"[TEST_SEND] extra_data transactional (DE+user)={extra_data}")
         else:
             extra_data = build_test_event_data(
                 api,
@@ -890,7 +873,6 @@ def test_send():
                 extra_data=extra_data,
                 schema=event_schema
             )
-            print(f"[TEST_SEND] extra_data api_event={extra_data}")
 
         # Choisit la méthode d'envoi selon le type de journey
         trigger_type = (event_info.get('trigger_type', '') if event_info else data.get('trigger_type', ''))
@@ -900,10 +882,9 @@ def test_send():
             event_definition_key.startswith('EmailAudience-') or
             event_definition_key.startswith('ContactAudience-')
         )
-        print(f"[TEST_SEND] trigger_type={trigger_type!r} use_soap={use_soap}")
+        print(f"[TEST_SEND] dispatch send_type={send_type!r} use_soap={use_soap}")
 
         if send_type == 'transactional':
-            print(f"[TEST_SEND] -> Methode: fire_transactional_email")
             result = api.fire_transactional_email(event_definition_key, contact_key, contact_email, extra_data)
         elif use_soap:
             # Welcome/EmailAudience: SOAP TriggeredSend avec CustomerKey resolu depuis ID numerique
@@ -912,27 +893,21 @@ def test_send():
             soap_customer_key = None
             if send_defs:
                 numeric_key = send_defs[0]['definition_key']
-                print(f"[TEST_SEND] welcome: triggeredSendKey numerique={numeric_key!r} -> resolution CustomerKey...")
                 try:
                     soap_customer_key = api.get_triggered_send_customer_key(numeric_key)
                 except Exception as e_resolve:
-                    print(f"[TEST_SEND] welcome: echec resolution CustomerKey: {e_resolve}")
-            print(f"[TEST_SEND] welcome: soap_customer_key resolu={soap_customer_key!r}")
+                    print(f"[TEST_SEND] CustomerKey resolution failed: {e_resolve}")
             if soap_customer_key:
-                print(f"[TEST_SEND] -> Methode: fire_triggered_send_soap (CustomerKey={soap_customer_key!r})")
                 result = api.fire_triggered_send_soap(soap_customer_key, contact_email, contact_key, extra_data)
             else:
                 # Fallback si resolution impossible
                 import uuid as _uuid2
                 contact_key = f"test-{_uuid2.uuid4().hex[:12]}"
-                print(f"[TEST_SEND] -> Methode: fire_api_event (fallback no CustomerKey, contact_key={contact_key!r})")
                 result = api.fire_api_event(event_definition_key, contact_key, contact_email, extra_data)
         else:
-            print(f"[TEST_SEND] -> Methode: fire_api_event")
             result = api.fire_api_event(event_definition_key, contact_key, contact_email, extra_data)
 
-        print(f"[TEST_SEND] SUCCES -- result={result}")
-        print(f"{'*'*70}\n")
+        print(f"[TEST_SEND] success send_type={send_type!r}")
 
         disposition = (result or {}).get('disposition', {}) if isinstance(result, dict) else {}
         pending = disposition.get('pending', False)
@@ -952,7 +927,6 @@ def test_send():
         })
     except Exception as e:
         print(f"[TEST_SEND] EXCEPTION: {e}")
-        print(f"{'*'*70}\n")
         return jsonify({'success': False, 'error': str(e)})
 
 
@@ -979,9 +953,8 @@ def extract_asset_id(activity):
     return None
 
 
-@app.route('/api/debug-definition', methods=['POST'])
-def debug_definition():
-    """Debug: appel direct SFMC pour une definition key"""
+# Removed endpoint from the public Flask route table.
+def removed_definition_route():
     try:
         api = get_api()
         data = request.json
@@ -1240,7 +1213,7 @@ def handle_exception(e):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--port', type=int, default=5011)
+    parser.add_argument('--port', type=int, default=5013)
     args = parser.parse_args()
     # Initialise la connexion SFMC au démarrage
     try:

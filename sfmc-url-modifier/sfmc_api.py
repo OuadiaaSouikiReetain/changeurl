@@ -5,6 +5,7 @@ SFMC API - Gestion journeys et emails
 
 import sys
 import io
+import os
 # Force UTF-8-SIG pour eviter les erreurs d'encodage Windows (cp1252)
 if sys.stdout.encoding and sys.stdout.encoding.lower() not in ('utf-8', 'utf-8-sig'):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8-sig', errors='replace')
@@ -16,6 +17,13 @@ import time
 import uuid
 import xml.etree.ElementTree as ET
 from config import REST_BASE_URL, SOAP_BASE_URL, extract_country_from_name, get_url_patterns_for_journey, COUNTRY_URL_MAPPINGS
+
+SFMC_DEBUG = os.getenv('SFMC_DEBUG', '').lower() in ('1', 'true', 'yes', 'on')
+
+
+def debug_log(message):
+    if SFMC_DEBUG:
+        print(message)
 
 
 class JourneyCache:
@@ -84,9 +92,9 @@ class SFMCAPI:
         )
 
     def _soap_post(self, action, body_xml):
-        print(f"\n[SOAP] Action={action}")
-        print(f"[SOAP] URL={self.soap_url}")
-        print(f"[SOAP] Body=\n{body_xml}")
+        debug_log(f"[SOAP] Action={action}")
+        debug_log(f"[SOAP] URL={self.soap_url}")
+        debug_log(f"[SOAP] Body=\n{body_xml}")
         response = requests.post(
             self.soap_url,
             data=self._soap_envelope(body_xml).encode('utf-8'),
@@ -97,8 +105,8 @@ class SFMCAPI:
             timeout=60,
             verify=False
         )
-        print(f"[SOAP] HTTP Status={response.status_code}")
-        print(f"[SOAP] Response=\n{response.text}")
+        debug_log(f"[SOAP] HTTP Status={response.status_code}")
+        debug_log(f"[SOAP] Response=\n{response.text}")
         response.raise_for_status()
         return response.text
 
@@ -137,7 +145,7 @@ class SFMCAPI:
         Envoie un email directement via SOAP TriggeredSend.
         Utilise pour les welcome journeys (EmailAudience trigger) qui ne supportent pas fire_api_event.
         """
-        print(f"\n[FIRE_TRIGGERED_SOAP] customer_key={customer_key!r} email={contact_email!r} key={contact_key!r}")
+        debug_log(f"[FIRE_TRIGGERED_SOAP] customer_key={customer_key!r}")
         attrs_xml = ''
         for name, value in (attributes or {}).items():
             if value:
@@ -660,12 +668,8 @@ class SFMCAPI:
         Envoie un email via l'API Transactional Messaging SFMC.
         Utilisé pour les journeys de type 'transactional-api'.
         """
-        print(f"\n{'='*60}")
-        print(f"[FIRE_TRANS] START")
-        print(f"[FIRE_TRANS] definition_key={definition_key!r}")
-        print(f"[FIRE_TRANS] contact_key={contact_key!r}")
-        print(f"[FIRE_TRANS] contact_email={contact_email!r}")
-        print(f"[FIRE_TRANS] extra_data={extra_data}")
+        debug_log("[FIRE_TRANS] START")
+        debug_log(f"[FIRE_TRANS] definition_key={definition_key!r}")
 
         # Vérifie que la send definition existe et est Active, et pré-inscrit le contact dans la DE d'abonnement
         try:
@@ -714,7 +718,7 @@ class SFMCAPI:
         attrs.setdefault('SubscriberKey', contact_key)
         for k, v in self._get_transactional_default_attributes(definition_key).items():
             attrs.setdefault(k, v)
-        print(f"[FIRE_TRANS] attrs final={attrs}")
+        debug_log(f"[FIRE_TRANS] attrs final={attrs}")
 
         bulk_url = f"{self.base_url}/messaging/v1/email/messages/"
         bulk_payload = {
@@ -725,8 +729,8 @@ class SFMCAPI:
                 "attributes": attrs
             }]
         }
-        print(f"[FIRE_TRANS] BULK POST {bulk_url}")
-        print(f"[FIRE_TRANS] BULK payload={bulk_payload}")
+        debug_log(f"[FIRE_TRANS] BULK POST {bulk_url}")
+        debug_log(f"[FIRE_TRANS] BULK payload={bulk_payload}")
         response = self._request_with_auth_retry(
             'POST',
             bulk_url,
@@ -735,8 +739,8 @@ class SFMCAPI:
             timeout=30,
             verify=False
         )
-        print(f"[FIRE_TRANS] BULK HTTP={response.status_code}")
-        print(f"[FIRE_TRANS] BULK response={response.text}")
+        debug_log(f"[FIRE_TRANS] BULK HTTP={response.status_code}")
+        debug_log(f"[FIRE_TRANS] BULK response={response.text}")
         if response.ok:
             resp_json = response.json()
             # SFMC returns 202 even when individual send fails — check responses[0].status
@@ -760,8 +764,7 @@ class SFMCAPI:
                 resp_json['disposition'] = disposition
             else:
                 print(f"[FIRE_TRANS] WARNING: aucun messageKey retourne, statut final non verifiable")
-            print(f"[FIRE_TRANS] BULK OK")
-            print(f"{'='*60}\n")
+            debug_log("[FIRE_TRANS] BULK OK")
             return resp_json
 
         print(f"[FIRE_TRANS] BULK échoué -> tentative SINGLE")
@@ -775,8 +778,8 @@ class SFMCAPI:
                 "attributes": extra_data or {}
             }
         }
-        print(f"[FIRE_TRANS] SINGLE POST {single_url}")
-        print(f"[FIRE_TRANS] SINGLE payload={single_payload}")
+        debug_log(f"[FIRE_TRANS] SINGLE POST {single_url}")
+        debug_log(f"[FIRE_TRANS] SINGLE payload={single_payload}")
         retry = self._request_with_auth_retry(
             'POST',
             single_url,
@@ -785,15 +788,13 @@ class SFMCAPI:
             timeout=30,
             verify=False
         )
-        print(f"[FIRE_TRANS] SINGLE HTTP={retry.status_code}")
-        print(f"[FIRE_TRANS] SINGLE response={retry.text}")
+        debug_log(f"[FIRE_TRANS] SINGLE HTTP={retry.status_code}")
+        debug_log(f"[FIRE_TRANS] SINGLE response={retry.text}")
         if retry.ok:
-            print(f"[FIRE_TRANS] SINGLE OK")
-            print(f"{'='*60}\n")
+            debug_log("[FIRE_TRANS] SINGLE OK")
             return retry.json()
 
-        print(f"[FIRE_TRANS] ECHEC TOTAL")
-        print(f"{'='*60}\n")
+        debug_log("[FIRE_TRANS] ECHEC TOTAL")
         raise Exception(
             "Transactional send failed. "
             f"bulk_status={response.status_code} bulk_body={response.text} | "
@@ -805,7 +806,7 @@ class SFMCAPI:
         Lit le statut d'un message transactionnel email via son messageKey.
         """
         url = f"{self.base_url}/messaging/v1/email/messages/{message_key}"
-        print(f"[TRANS_STATUS] GET {url}")
+        debug_log(f"[TRANS_STATUS] GET {url}")
         response = self._request_with_auth_retry(
             'GET',
             url,
@@ -813,8 +814,8 @@ class SFMCAPI:
             timeout=30,
             verify=False
         )
-        print(f"[TRANS_STATUS] HTTP={response.status_code}")
-        print(f"[TRANS_STATUS] response={response.text}")
+        debug_log(f"[TRANS_STATUS] HTTP={response.status_code}")
+        debug_log(f"[TRANS_STATUS] response={response.text}")
         response.raise_for_status()
         return response.json()
 
@@ -901,7 +902,7 @@ class SFMCAPI:
                 print(f"[SEND_DEF_ATTRS] Pas de dataExtension dans la send def")
                 return {}
 
-            print(f"[SEND_DEF_ATTRS] DE key={de_key!r} recherche ligne pour {contact_email!r}")
+            print(f"[SEND_DEF_ATTRS] DE key={de_key!r} recherche ligne pour l'email fourni")
 
             # Cherche ligne existante pour cet email
             r = requests.get(
@@ -913,11 +914,11 @@ class SFMCAPI:
                 items = r.json().get('items', [])
                 if items:
                     vals = self._normalize_de_row(items[0].get('values', {}), contact_email, contact_key)
-                    print(f"[SEND_DEF_ATTRS] Ligne trouvee pour l'email: {vals}")
+                    debug_log(f"[SEND_DEF_ATTRS] Ligne trouvee pour l'email: {vals}")
                     return vals
 
             # Pas de ligne pour cet email -> template depuis premiere ligne
-            print(f"[SEND_DEF_ATTRS] Pas de ligne pour {contact_email!r} -> template premiere ligne")
+            print("[SEND_DEF_ATTRS] Pas de ligne pour l'email -> template premiere ligne")
             r2 = requests.get(
                 f"{self.base_url}/data/v1/customobjectdata/key/{de_key}/rowset",
                 headers=self.auth.get_headers(), verify=False, timeout=30,
@@ -927,7 +928,7 @@ class SFMCAPI:
                 items = r2.json().get('items', [])
                 if items:
                     vals = self._normalize_de_row(items[0].get('values', {}), contact_email, contact_key)
-                    print(f"[SEND_DEF_ATTRS] Template construit: {vals}")
+                    debug_log(f"[SEND_DEF_ATTRS] Template construit: {vals}")
                     return vals
         except Exception as e:
             print(f"[SEND_DEF_ATTRS] Erreur: {e}")
@@ -970,7 +971,7 @@ class SFMCAPI:
         }
         url = f"{self.base_url}/messaging/v1/email/definitions/{definition_key}"
         print(f"[REFRESH_TRANS_DEF] PATCH {url}")
-        print(f"[REFRESH_TRANS_DEF] PATCH payload={payload}")
+        debug_log(f"[REFRESH_TRANS_DEF] PATCH payload={payload}")
         response = self._request_with_auth_retry(
             'PATCH',
             url,
@@ -980,7 +981,7 @@ class SFMCAPI:
             verify=False
         )
         print(f"[REFRESH_TRANS_DEF] PATCH HTTP={response.status_code}")
-        print(f"[REFRESH_TRANS_DEF] PATCH response={response.text}")
+        debug_log(f"[REFRESH_TRANS_DEF] PATCH response={response.text}")
         response.raise_for_status()
         result = response.json()
         print(f"[REFRESH_TRANS_DEF] OK -- cache invalide, Content Builder sera relu au prochain envoi")
@@ -991,12 +992,8 @@ class SFMCAPI:
         Déclenche une entrée dans une journey via API Event.
         Utilisé pour tester que la journey envoie bien le nouvel email.
         """
-        print(f"\n{'='*60}")
-        print(f"[FIRE_API_EVENT] START")
-        print(f"[FIRE_API_EVENT] event_definition_key={event_definition_key!r}")
-        print(f"[FIRE_API_EVENT] contact_key={contact_key!r}")
-        print(f"[FIRE_API_EVENT] contact_email={contact_email!r}")
-        print(f"[FIRE_API_EVENT] extra_data={extra_data}")
+        debug_log("[FIRE_API_EVENT] START")
+        debug_log(f"[FIRE_API_EVENT] event_definition_key={event_definition_key!r}")
 
         url = f"{self.base_url}/interaction/v1/events"
         data_payload = self.build_event_test_data(contact_key, contact_email, extra_data)
@@ -1005,8 +1002,8 @@ class SFMCAPI:
             "EventDefinitionKey": event_definition_key,
             "Data": data_payload
         }
-        print(f"[FIRE_API_EVENT] POST {url}")
-        print(f"[FIRE_API_EVENT] payload={payload}")
+        debug_log(f"[FIRE_API_EVENT] POST {url}")
+        debug_log(f"[FIRE_API_EVENT] payload={payload}")
 
         response = self._request_with_auth_retry(
             'POST',
@@ -1016,17 +1013,15 @@ class SFMCAPI:
             timeout=30,
             verify=False
         )
-        print(f"[FIRE_API_EVENT] HTTP={response.status_code}")
-        print(f"[FIRE_API_EVENT] response={response.text}")
+        debug_log(f"[FIRE_API_EVENT] HTTP={response.status_code}")
+        debug_log(f"[FIRE_API_EVENT] response={response.text}")
 
         if not response.ok:
-            print(f"[FIRE_API_EVENT] ECHEC")
-            print(f"{'='*60}\n")
+            debug_log("[FIRE_API_EVENT] ECHEC")
             raise Exception(f"SFMC {response.status_code}: {response.text}")
 
         result = response.json()
-        print(f"[FIRE_API_EVENT] OK -- {result}")
-        print(f"{'='*60}\n")
+        debug_log(f"[FIRE_API_EVENT] OK -- {result}")
         return result
 
     def get_journey_by_id(self, journey_id):
