@@ -9,34 +9,52 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
-            /* SFMC Brand Colors */
+            /* Brand */
             --sfmc-blue: #0176D3;
             --sfmc-dark: #032D60;
-            --sfmc-light: #1B96FF;
-            --sfmc-navy: #001639;
+            --sfmc-light: #2AB8FF;
+            --sfmc-navy: #001A3D;
 
-            /* UI Colors */
-            --bg: #f3f4f6;
-            --bg-warm: #e5e7eb;
-            --card: #ffffff;
-            --text: #032D60;
-            --text-soft: #3B5998;
-            --text-muted: #6B7280;
+            /* Surfaces */
+            --bg: #F2F5FB;
+            --bg-warm: #E8ECF5;
+            --card: #FFFFFF;
+
+            /* Text */
+            --text: #0B1E3D;
+            --text-soft: #2D4A7A;
+            --text-muted: #7A8FA8;
+
+            /* Accent */
             --accent: #0176D3;
-            --accent-soft: #D4E5F7;
-            --accent-hover: #014486;
-            --success: #2E844A;
-            --success-soft: #C6F6D5;
-            --warning: #DD7A01;
-            --warning-soft: #FEF3C7;
-            --danger: #C23934;
-            --danger-soft: #FED7D7;
-            --border: #D8DDE6;
-            --border-strong: #A8B7C7;
-            --sidebar-bg: #032D60;
-            --sidebar-soft: #014486;
-            --radius: 8px;
-            --radius-sm: 6px;
+            --accent-soft: #E5F1FD;
+            --accent-hover: #0162B5;
+
+            /* Semantic */
+            --success: #1A7840;
+            --success-soft: #E3F5EC;
+            --warning: #B45400;
+            --warning-soft: #FEF0E5;
+            --danger: #B52929;
+            --danger-soft: #FDE8E8;
+
+            /* Borders */
+            --border: #DDE3EF;
+            --border-strong: #BEC9DC;
+
+            /* Sidebar */
+            --sidebar-bg: #011630;
+            --sidebar-soft: rgba(255,255,255,0.07);
+
+            /* Radii */
+            --radius: 12px;
+            --radius-sm: 8px;
+
+            /* Shadows */
+            --shadow-xs: 0 1px 2px rgba(11,30,61,0.06);
+            --shadow-sm: 0 2px 8px rgba(11,30,61,0.07), 0 1px 3px rgba(11,30,61,0.04);
+            --shadow-md: 0 6px 20px rgba(11,30,61,0.10), 0 2px 8px rgba(11,30,61,0.06);
+            --shadow-lg: 0 16px 48px rgba(11,30,61,0.14), 0 4px 16px rgba(11,30,61,0.08);
         }
 
         * {
@@ -64,48 +82,63 @@
         .sidebar {
             width: 300px;
             background: var(--sidebar-bg);
-            padding: 24px 20px;
+            padding: 24px 18px;
             display: flex;
             flex-direction: column;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
+            border-right: 1px solid rgba(255,255,255,0.04);
         }
 
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 35% 0%, rgba(1,118,211,0.22) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 100%, rgba(0,22,50,0.5) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .sidebar > * { position: relative; }
+
         .brand {
-            padding-bottom: 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 24px;
+            padding-bottom: 22px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 22px;
             text-align: center;
         }
 
         .brand img {
-            height: 56px;
+            height: 52px;
             margin-bottom: 12px;
             filter: brightness(0) invert(1);
+            opacity: 0.95;
         }
 
         .brand-title {
             color: #fff;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 700;
             letter-spacing: -0.01em;
         }
 
         .brand-subtitle {
-            color: rgba(255,255,255,0.5);
-            font-size: 0.7rem;
-            margin-top: 4px;
+            color: rgba(255,255,255,0.32);
+            font-size: 0.62rem;
+            margin-top: 3px;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.14em;
         }
 
         /* Connection */
         .connection-box {
             background: var(--sidebar-soft);
+            border: 1px solid rgba(255,255,255,0.07);
             border-radius: var(--radius-sm);
-            padding: 16px;
-            margin-bottom: 24px;
+            padding: 14px;
+            margin-bottom: 22px;
         }
 
         .connection-status {
@@ -116,11 +149,11 @@
         }
 
         .connection-label {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.7rem;
-            font-weight: 600;
+            color: rgba(255,255,255,0.42);
+            font-size: 0.65rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.1em;
         }
 
         .status-indicator {
@@ -148,49 +181,52 @@
 
         .status-indicator.online .status-dot {
             animation: pulse 2s ease infinite;
+            box-shadow: 0 0 0 3px rgba(74,222,128,0.25);
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.88); }
         }
 
         .btn-connect {
             width: 100%;
-            padding: 12px 16px;
-            background: var(--sfmc-light);
+            padding: 11px 16px;
+            background: var(--sfmc-blue);
             color: white;
             border: none;
             border-radius: var(--radius-sm);
             font-size: 0.8rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 0.01em;
+            box-shadow: 0 2px 10px rgba(1,118,211,0.45);
+            font-family: inherit;
         }
 
         .btn-connect:hover {
-            background: #0176D3;
+            background: var(--accent-hover);
             transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+            box-shadow: 0 4px 18px rgba(1,118,211,0.55);
         }
 
         /* Navigation */
         .nav-section {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .nav-title {
-            color: var(--text-muted);
-            font-size: 0.65rem;
-            font-weight: 600;
+            color: rgba(255,255,255,0.26);
+            font-size: 0.6rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 10px;
+            letter-spacing: 0.14em;
+            margin-bottom: 8px;
             padding-left: 12px;
         }
 
@@ -198,54 +234,65 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 11px 14px;
-            color: rgba(255,255,255,0.7);
+            padding: 10px 12px;
+            color: rgba(255,255,255,0.52);
             border-radius: var(--radius-sm);
             cursor: pointer;
-            transition: all 0.15s;
-            font-size: 0.85rem;
+            transition: all 0.15s ease;
+            font-size: 0.83rem;
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
+            letter-spacing: -0.01em;
         }
 
         .nav-item:hover {
-            background: rgba(255,255,255,0.08);
-            color: #fff;
+            background: rgba(255,255,255,0.07);
+            color: rgba(255,255,255,0.9);
         }
 
         .nav-item.active {
-            background: var(--sfmc-light);
-            color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            background: rgba(1,118,211,0.22);
+            color: #7DCFFF;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 1px rgba(1,118,211,0.32);
         }
 
         .nav-item i {
-            width: 18px;
-            font-size: 0.9rem;
+            width: 16px;
+            font-size: 0.82rem;
             text-align: center;
+            opacity: 0.8;
         }
+
+        .nav-item.active i { opacity: 1; }
 
         .nav-badge {
             margin-left: auto;
-            background: rgba(255,255,255,0.15);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: 600;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 7px;
+            border-radius: 20px;
+            font-size: 0.67rem;
+            font-weight: 700;
+        }
+
+        .nav-item.active .nav-badge {
+            background: rgba(1,118,211,0.35);
+            color: #7DCFFF;
         }
 
         /* Pattern Config */
         .config-box {
             background: var(--sidebar-soft);
+            border: 1px solid rgba(255,255,255,0.07);
             border-radius: var(--radius-sm);
-            padding: 16px;
+            padding: 14px;
             margin-top: auto;
         }
 
         .config-title {
-            color: #e7e5e4;
+            color: rgba(255,255,255,0.88);
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 14px;
             display: flex;
             align-items: center;
@@ -324,81 +371,131 @@
         .main {
             flex: 1;
             margin-left: 300px;
-            padding: 32px 40px;
+            padding: 36px 44px;
             max-width: 1200px;
         }
 
         /* Header */
         .header {
-            margin-bottom: 32px;
+            margin-bottom: 36px;
         }
 
         .header-top {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .greeting {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: var(--text-muted);
             margin-bottom: 4px;
+            font-weight: 500;
         }
 
         .page-title {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.65rem;
+            font-weight: 800;
             color: var(--text);
-            letter-spacing: -0.02em;
+            letter-spacing: -0.03em;
         }
 
         .btn {
-            padding: 10px 18px;
+            padding: 9px 18px;
             border: none;
             border-radius: var(--radius-sm);
             font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
+            font-family: inherit;
+            letter-spacing: 0.01em;
         }
 
         .btn-ghost {
             background: transparent;
             color: var(--text-soft);
-            border: 1px solid var(--border);
+            border: 1.5px solid var(--border);
         }
 
         .btn-ghost:hover {
             background: var(--bg-warm);
             border-color: var(--border-strong);
+            color: var(--text);
         }
 
         .btn-primary {
             background: var(--accent);
             color: white;
+            box-shadow: 0 2px 8px rgba(1,118,211,0.32);
         }
 
         .btn-primary:hover {
             background: var(--accent-hover);
+            box-shadow: 0 4px 14px rgba(1,118,211,0.42);
+            transform: translateY(-1px);
         }
 
         .btn-success {
             background: var(--success);
             color: white;
+            box-shadow: 0 2px 8px rgba(26,120,64,0.28);
+        }
+
+        .btn-success:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
         }
 
         .btn-danger {
             background: var(--danger);
             color: white;
+            box-shadow: 0 2px 8px rgba(181,41,41,0.28);
+        }
+
+        .btn-danger:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+        }
+
+        /* Tooltip générique */
+        .has-tooltip { position: relative; }
+        .has-tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) scale(0.92);
+            background: var(--text);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.45;
+            padding: 7px 11px;
+            border-radius: 8px;
+            white-space: pre-line;
+            width: max-content;
+            max-width: 230px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s, transform 0.15s;
+            box-shadow: var(--shadow-md);
+            z-index: 999;
+        }
+        .has-tooltip:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
         }
 
         .btn:disabled {
-            opacity: 0.4;
+            opacity: 0.38;
             cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         /* Stats */
@@ -413,23 +510,26 @@
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 20px;
-            transition: border-color 0.2s;
+            padding: 22px;
+            transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: var(--shadow-xs);
         }
 
         .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
             border-color: var(--border-strong);
         }
 
         .stat-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.95rem;
-            margin-bottom: 12px;
+            font-size: 0.9rem;
+            margin-bottom: 14px;
         }
 
         .stat-card.orange .stat-icon { background: var(--accent-soft); color: var(--sfmc-blue); }
@@ -438,25 +538,27 @@
         .stat-card.red .stat-icon { background: var(--danger-soft); color: var(--danger); }
 
         .stat-value {
-            font-size: 1.75rem;
-            font-weight: 700;
+            font-size: 1.9rem;
+            font-weight: 800;
             color: var(--text);
             line-height: 1;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.03em;
         }
 
         .stat-label {
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 0.76rem;
             margin-top: 6px;
+            font-weight: 500;
         }
 
-        /* Journey Card */
+        /* Card */
         .card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             overflow: hidden;
+            box-shadow: var(--shadow-sm);
         }
 
         .card-header {
@@ -468,8 +570,8 @@
         }
 
         .card-title {
-            font-size: 0.95rem;
-            font-weight: 600;
+            font-size: 0.92rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -566,24 +668,30 @@
         }
 
         .btn-load-more {
-            padding: 10px 24px;
-            background: var(--sfmc-blue);
+            padding: 10px 26px;
+            background: var(--accent);
             color: white;
             border: none;
             border-radius: var(--radius-sm);
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.83rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 2px 8px rgba(1,118,211,0.3);
+            font-family: inherit;
         }
 
         .btn-load-more:hover {
-            background: var(--sfmc-dark);
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(1,118,211,0.42);
         }
 
         .btn-load-more:disabled {
-            opacity: 0.5;
+            opacity: 0.45;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .load-more-info {
@@ -642,8 +750,8 @@
 
         .search-input:focus {
             outline: none;
-            border-color: var(--sfmc-blue);
-            box-shadow: 0 0 0 3px rgba(1, 118, 211, 0.15);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(1, 118, 211, 0.12);
         }
 
         .search-input::placeholder {
@@ -688,6 +796,7 @@
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 24px;
+            box-shadow: var(--shadow-sm);
         }
 
         .republication-title {
@@ -716,23 +825,24 @@
         }
 
         .repub-btn {
-            padding: 20px;
-            border: 2px solid var(--border);
+            padding: 22px 16px;
+            border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
             background: white;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
             text-align: center;
+            font-family: inherit;
         }
 
         .repub-btn:hover:not(:disabled) {
-            border-color: var(--sfmc-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(1, 118, 211, 0.15);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
         }
 
         .repub-btn:disabled {
-            opacity: 0.4;
+            opacity: 0.38;
             cursor: not-allowed;
         }
 
@@ -992,8 +1102,8 @@
 
         .toggle-switch {
             position: relative;
-            width: 44px;
-            height: 24px;
+            width: 40px;
+            height: 22px;
         }
 
         .toggle-switch input {
@@ -1005,33 +1115,31 @@
         .toggle-slider {
             position: absolute;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #374151;
+            inset: 0;
+            background-color: rgba(255,255,255,0.14);
             border-radius: 24px;
-            transition: 0.3s;
+            transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
         }
 
         .toggle-slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
+            height: 16px;
+            width: 16px;
             left: 3px;
             bottom: 3px;
             background-color: white;
             border-radius: 50%;
-            transition: 0.3s;
+            transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.28);
         }
 
         .toggle-switch input:checked + .toggle-slider {
-            background-color: var(--sfmc-light);
+            background-color: var(--sfmc-blue);
         }
 
         .toggle-switch input:checked + .toggle-slider:before {
-            transform: translateX(20px);
+            transform: translateX(18px);
         }
 
         .toggle-label {
@@ -1045,11 +1153,12 @@
             align-items: flex-start;
             gap: 8px;
             padding: 10px 12px;
-            background: rgba(27, 150, 255, 0.15);
+            background: rgba(1,118,211,0.12);
+            border: 1px solid rgba(1,118,211,0.2);
             border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.8);
-            line-height: 1.4;
+            font-size: 0.73rem;
+            color: rgba(255,255,255,0.78);
+            line-height: 1.45;
         }
 
         .auto-detect-info i {
@@ -1152,10 +1261,11 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            padding: 4px 10px;
+            padding: 3px 10px;
             border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
         }
 
         .status-pill.running {
@@ -1260,6 +1370,7 @@
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 24px;
+            box-shadow: var(--shadow-sm);
         }
 
         .action-title {
@@ -1289,23 +1400,24 @@
         }
 
         .action-btn {
-            padding: 20px;
-            border: 2px solid var(--border);
+            padding: 22px 16px;
+            border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
             background: white;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
             text-align: center;
+            font-family: inherit;
         }
 
         .action-btn:hover:not(:disabled) {
-            border-color: var(--sfmc-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(1, 118, 211, 0.15);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
         }
 
         .action-btn:disabled {
-            opacity: 0.4;
+            opacity: 0.38;
             cursor: not-allowed;
         }
 
@@ -1322,10 +1434,11 @@
         /* Test Send Panel */
         .test-send-panel {
             background: white;
-            border: 2px solid #7c3aed22;
-            border-radius: var(--radius);
+            border: 1.5px solid rgba(124,58,237,0.14);
+            border-radius: var(--radius-sm);
             padding: 20px;
             margin-top: 16px;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.06);
         }
         .test-send-title {
             font-size: 0.85rem;
@@ -1471,19 +1584,16 @@
         /* Modal */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(28, 25, 23, 0.6);
-            backdrop-filter: blur(4px);
+            inset: 0;
+            background: rgba(11,30,61,0.5);
+            backdrop-filter: blur(6px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.2s;
+            transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
         }
 
         .modal-overlay.active {
@@ -1498,12 +1608,21 @@
             max-width: 720px;
             max-height: 85vh;
             overflow: hidden;
-            transform: scale(0.95);
-            transition: transform 0.2s;
+            transform: scale(0.96) translateY(10px);
+            transition: transform 0.24s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: var(--shadow-lg);
         }
 
         .modal-overlay.active .modal {
-            transform: scale(1);
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .modal-header {
@@ -1514,13 +1633,6 @@
             align-items: center;
         }
 
-        .modal-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
 
         .modal-close {
             width: 32px;
@@ -1662,12 +1774,9 @@
         /* Loading */
         .loading-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(250, 250, 249, 0.9);
-            backdrop-filter: blur(4px);
+            inset: 0;
+            background: rgba(242,245,251,0.88);
+            backdrop-filter: blur(6px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1684,12 +1793,13 @@
         }
 
         .loader {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             border: 3px solid var(--border);
             border-top-color: var(--accent);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.7s linear infinite;
+            box-shadow: 0 0 0 6px rgba(1,118,211,0.06);
         }
 
         @keyframes spin {
@@ -1698,9 +1808,9 @@
 
         .loading-text {
             margin-top: 16px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-soft);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
         }
 
         /* Toast */
@@ -1715,25 +1825,25 @@
         }
 
         .toast {
-            padding: 14px 18px;
+            padding: 13px 18px;
             background: white;
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             gap: 12px;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.28s cubic-bezier(0.34,1.56,0.64,1);
             min-width: 280px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
         }
 
         @keyframes slideIn {
             from {
-                transform: translateX(20px);
+                transform: translateX(28px) scale(0.97);
                 opacity: 0;
             }
             to {
-                transform: translateX(0);
+                transform: translateX(0) scale(1);
                 opacity: 1;
             }
         }
@@ -1768,84 +1878,90 @@
         .ec-journey-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 12px;
-            padding: 16px;
+            gap: 14px;
+            padding: 18px;
         }
         .ec-journey-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
+            background: var(--card);
+            border: 1.5px solid var(--border);
             border-radius: var(--radius);
-            padding: 16px;
+            padding: 18px;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
+            box-shadow: var(--shadow-xs);
         }
-        .ec-journey-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(1,118,211,0.12); }
-        .ec-journey-name { font-size: 0.9rem; font-weight: 600; color: var(--text); line-height: 1.3; }
-        .ec-journey-meta { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap; }
+        .ec-journey-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .ec-journey-name { font-size: 0.88rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+        .ec-journey-meta { display: flex; align-items: center; gap: 8px; font-size: 0.73rem; color: var(--text-muted); flex-wrap: wrap; }
         .ec-email-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 12px;
-            padding: 16px;
+            gap: 14px;
+            padding: 18px;
         }
         .ec-email-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
+            background: var(--card);
+            border: 1.5px solid var(--border);
             border-radius: var(--radius);
-            padding: 14px;
+            padding: 16px;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
             display: flex;
             align-items: center;
             gap: 12px;
+            box-shadow: var(--shadow-xs);
         }
-        .ec-email-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(1,118,211,0.12); }
+        .ec-email-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
         .ec-email-icon {
-            width: 38px; height: 38px; border-radius: 8px;
+            width: 40px; height: 40px; border-radius: 10px;
             background: var(--accent-soft); display: flex;
             align-items: center; justify-content: center;
             color: var(--accent); font-size: 1rem; flex-shrink: 0;
         }
-        .ec-email-name { font-size: 0.85rem; font-weight: 600; color: var(--text); line-height: 1.3; }
-        .ec-email-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+        .ec-email-name { font-size: 0.84rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+        .ec-email-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; }
         .ec-segmented {
-            display: inline-flex; gap: 6px; padding: 4px;
+            display: inline-flex; gap: 4px; padding: 4px;
             background: var(--bg-warm); border-radius: 10px; border: 1px solid var(--border);
             margin-top: 12px;
         }
         .ec-segmented button {
-            border: none; background: transparent; color: var(--text-soft);
-            padding: 8px 14px; border-radius: 8px; cursor: pointer;
-            font-size: 0.82rem; font-weight: 600;
+            border: none; background: transparent; color: var(--text-muted);
+            padding: 7px 14px; border-radius: 7px; cursor: pointer;
+            font-size: 0.8rem; font-weight: 600; transition: all 0.15s;
+            font-family: inherit;
         }
+        .ec-segmented button:hover { color: var(--text); background: rgba(0,0,0,0.04); }
         .ec-segmented button.active {
             background: var(--card); color: var(--accent);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
         }
         .ec-bulk-bar {
             display: flex; align-items: center; justify-content: space-between; gap: 12px;
-            padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg);
+            padding: 12px 18px; border-bottom: 1px solid var(--border);
+            background: var(--accent-soft);
         }
         .ec-bulk-info {
             font-size: 0.8rem; color: var(--text-soft);
             display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+            font-weight: 500;
         }
         .ec-bulk-count {
             display: inline-flex; align-items: center; justify-content: center;
             min-width: 24px; height: 24px; padding: 0 8px; border-radius: 999px;
-            background: var(--accent-soft); color: var(--accent); font-weight: 700;
+            background: var(--accent); color: white; font-weight: 700; font-size: 0.75rem;
         }
         .ec-selection-panel {
-            margin: 14px 16px 0;
-            border: 1px solid rgba(1,118,211,0.12);
-            border-radius: 16px;
+            margin: 16px 18px 0;
+            border: 1px solid rgba(1,118,211,0.14);
+            border-radius: var(--radius);
             background:
-                linear-gradient(135deg, rgba(1,118,211,0.08), rgba(3,45,96,0.03)),
+                linear-gradient(135deg, rgba(1,118,211,0.07), rgba(3,45,96,0.02)),
                 var(--card);
-            box-shadow: 0 12px 28px rgba(3,45,96,0.08);
+            box-shadow: var(--shadow-md);
             overflow: hidden;
         }
         .ec-selection-panel.hidden {
@@ -2027,17 +2143,20 @@
             font-size: 0.8rem;
         }
         .ec-card-check {
-            width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+            width: 30px; height: 30px; border-radius: 8px; border: 1.5px solid var(--border);
             background: var(--card); display: inline-flex; align-items: center; justify-content: center;
             cursor: pointer; color: var(--text-muted); flex-shrink: 0;
+            transition: all 0.15s;
         }
+        .ec-card-check:hover { border-color: var(--accent); color: var(--accent); }
         .ec-card-check.active {
             background: var(--accent); border-color: var(--accent); color: white;
+            box-shadow: 0 2px 8px rgba(1,118,211,0.3);
         }
         .ec-journey-card.selected,
         .ec-email-card.selected {
             border-color: var(--accent);
-            box-shadow: 0 0 0 2px rgba(1,118,211,0.12);
+            box-shadow: 0 0 0 3px rgba(1,118,211,0.1), var(--shadow-sm);
         }
         .ec-card-main {
             display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
@@ -2087,24 +2206,27 @@
             flex: 1; background: white; border-radius: var(--radius);
             overflow: auto; border: 1px solid var(--border);
             display: flex; justify-content: center;
+            box-shadow: var(--shadow-sm);
         }
         .ec-preview-wrap iframe { height: 100%; border: none; transition: width 0.3s ease; }
         .ec-view-toggle {
-            padding: 2px 10px; border: 1px solid var(--border); border-radius: 4px;
+            padding: 3px 10px; border: 1.5px solid var(--border); border-radius: 5px;
             background: transparent; font-size: 0.68rem; cursor: pointer;
-            color: var(--text-muted); font-weight: 500;
+            color: var(--text-muted); font-weight: 600; transition: all 0.15s;
+            font-family: inherit;
         }
+        .ec-view-toggle:hover { border-color: var(--accent); color: var(--accent); }
         .ec-view-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
         .ec-block-item {
             display: flex; align-items: center; gap: 10px;
-            padding: 10px 12px; cursor: pointer; transition: all 0.12s;
+            padding: 10px 14px; cursor: pointer; transition: all 0.12s;
             font-size: 0.8rem; color: var(--text-soft);
             border-bottom: 1px solid var(--border);
         }
         .ec-block-item:hover { background: var(--bg); color: var(--text); }
-        .ec-block-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+        .ec-block-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
         .ec-block-icon {
-            width: 26px; height: 26px; border-radius: 5px;
+            width: 26px; height: 26px; border-radius: 6px;
             background: var(--bg-warm); display: flex;
             align-items: center; justify-content: center;
             font-size: 0.72rem; flex-shrink: 0; color: var(--text-muted);
@@ -2112,24 +2234,26 @@
         .ec-block-item.active .ec-block-icon { background: var(--accent); color: white; }
         .ec-form-group { padding: 12px 14px; border-bottom: 1px solid var(--border); }
         .ec-form-label {
-            font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 7px; display: block;
+            font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 7px; display: block;
         }
         .ec-input {
-            width: 100%; padding: 7px 10px; border: 1px solid var(--border);
+            width: 100%; padding: 8px 10px; border: 1.5px solid var(--border);
             border-radius: var(--radius-sm); font-size: 0.84rem; color: var(--text);
             background: var(--card); outline: none; font-family: inherit;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
-        .ec-input:focus { border-color: var(--accent); }
+        .ec-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(1,118,211,0.1); }
         .ec-input-row { display: flex; gap: 8px; align-items: center; }
         .ec-input-row .ec-input { width: 68px; }
         .ec-input-row label { font-size: 0.72rem; color: var(--text-muted); }
         .ec-upload-btn {
             display: flex; align-items: center; gap: 8px; padding: 9px 14px;
             background: var(--accent-soft); color: var(--accent);
-            border: 1px dashed var(--accent); border-radius: var(--radius-sm);
-            cursor: pointer; font-size: 0.82rem; font-weight: 600;
+            border: 1.5px dashed var(--accent); border-radius: var(--radius-sm);
+            cursor: pointer; font-size: 0.82rem; font-weight: 700;
             width: 100%; justify-content: center; transition: all 0.15s; margin-top: 6px;
+            font-family: inherit;
         }
         .ec-upload-btn:hover { background: var(--accent); color: white; border-style: solid; }
         .ec-color-row { display: flex; align-items: center; gap: 10px; }
@@ -2145,20 +2269,22 @@
             background: var(--bg); margin-bottom: 8px; display: block;
         }
         .ec-btn-danger {
-            display: flex; align-items: center; gap: 6px; padding: 7px 12px;
+            display: flex; align-items: center; gap: 6px; padding: 8px 14px;
             background: var(--danger-soft); color: var(--danger);
-            border: 1px solid var(--danger); border-radius: var(--radius-sm);
-            cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            border: 1.5px solid var(--danger); border-radius: var(--radius-sm);
+            cursor: pointer; font-size: 0.8rem; font-weight: 700;
             width: 100%; justify-content: center; transition: all 0.15s; margin-top: 6px;
+            font-family: inherit;
         }
         .ec-btn-danger:hover { background: var(--danger); color: white; }
         .ec-focus-btn {
             margin-left: auto; display: flex; align-items: center; gap: 5px;
-            padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border);
+            padding: 3px 8px; border-radius: 5px; border: 1.5px solid var(--border);
             background: transparent; cursor: pointer; font-size: 0.68rem;
-            font-weight: 600; color: var(--text-muted); white-space: nowrap;
-            transition: all 0.15s;
+            font-weight: 700; color: var(--text-muted); white-space: nowrap;
+            transition: all 0.15s; font-family: inherit;
         }
+        .ec-focus-btn:hover { border-color: var(--accent); color: var(--accent); }
         .ec-focus-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
         .ec-focus-btn i { font-size: 0.65rem; }
 
@@ -2737,6 +2863,7 @@
                             <div>
                                 <p class="greeting">Email Changement</p>
                                 <h1 class="page-title">Sélectionner une Journey</h1>
+                                <p style="font-size:0.83rem;color:var(--text-muted);margin-top:6px;line-height:1.5">En mode <strong>Triggers</strong>, sélectionnez une ou plusieurs journeys pour éditer leurs emails individuellement ou en masse. En mode <strong>Transactionnel</strong>, sélectionnez des journeys pour appliquer les mêmes changements d'images et de couleur en une seule opération.</p>
                                 <div class="ec-segmented">
                                     <button id="ecModeTriggerBtn" class="active" onclick="ecSetJourneyMode('trigger')">Triggers</button>
                                     <button id="ecModeTransactionalBtn" onclick="ecSetJourneyMode('transactional')">Transactionnel</button>
@@ -2745,15 +2872,24 @@
                         </div>
                     </div>
                     <div class="card">
+                        <div class="ec-bulk-bar" id="ecTriggerBulkBarJourneys" style="display:none">
+                            <div class="ec-bulk-info">
+                                <span>Sélection emails trigger</span>
+                                <span class="ec-bulk-count" id="ecTriggerSelectedCountJourneys">0</span>
+                                <span>email(s)</span>
+                            </div>
+                            <button class="btn btn-ghost btn-sm" onclick="ecDeselectLastTriggerEmail()">× Dernier</button>
+                        </div>
                         <div class="ec-bulk-bar" id="ecTransactionalBulkBar" style="display:none">
                             <div class="ec-bulk-info">
                                 <span>Sélection transactionnelle</span>
                                 <span class="ec-bulk-count" id="ecTransactionalSelectedCount">0</span>
                                 <span>journey(s)</span>
                             </div>
-                            <div style="display:flex;gap:8px">
-                                <button class="btn btn-ghost btn-sm" onclick="ecClearTransactionalSelection()">Désélectionner</button>
-                            </div>
+                            <button class="btn btn-ghost btn-sm" onclick="ecDeselectLastTransactionalJourney()">× Dernier</button>
+                        </div>
+                        <div id="ecGlobalClearBarJourneys" style="display:none;justify-content:flex-end;padding:8px 18px;border-bottom:1px solid var(--border);background:var(--bg-warm)">
+                            <button class="btn btn-danger btn-sm" onclick="ecClearAllSelections()"><i class="fas fa-trash-can"></i> Tout désélectionner</button>
                         </div>
                         <div class="ec-selection-panel hidden" id="ecJourneySelectionSummary"></div>
                         <div class="search-bar">
@@ -2782,6 +2918,7 @@
                                 <div>
                                     <p class="greeting" id="ecEmailsJourneyName">Journey</p>
                                     <h1 class="page-title">Sélectionner un Email</h1>
+                                    <p style="font-size:0.83rem;color:var(--text-muted);margin-top:6px;line-height:1.5">Cliquez sur un email pour l'ouvrir et modifier son contenu (fond, logo, texte). Cochez plusieurs emails pour appliquer un logo ou une couleur de fond en masse via le bouton Bulk.</p>
                                 </div>
                             </div>
                         </div>
@@ -2793,9 +2930,10 @@
                                 <span class="ec-bulk-count" id="ecTriggerSelectedCount">0</span>
                                 <span>email(s)</span>
                             </div>
-                            <div style="display:flex;gap:8px">
-                                <button class="btn btn-ghost btn-sm" onclick="ecClearTriggerEmailSelection()">Désélectionner</button>
-                            </div>
+                            <button class="btn btn-ghost btn-sm" onclick="ecDeselectLastTriggerEmail()">× Dernier</button>
+                        </div>
+                        <div id="ecGlobalClearBarEmails" style="display:none;justify-content:flex-end;padding:8px 18px;border-bottom:1px solid var(--border);background:var(--bg-warm)">
+                            <button class="btn btn-danger btn-sm" onclick="ecClearAllSelections()"><i class="fas fa-trash-can"></i> Tout désélectionner</button>
                         </div>
                         <div class="ec-selection-panel hidden" id="ecEmailSelectionSummary"></div>
                         <div id="ecEmailListBody">
@@ -2826,6 +2964,7 @@
                     <div class="ec-editor-layout">
                         <div class="ec-block-panel">
                             <div class="ec-panel-title">Blocs détectés</div>
+                            <p style="font-size:0.76rem;color:var(--text-muted);padding:8px 12px 4px;line-height:1.5;margin:0">Les blocs détectés automatiquement apparaissent ici. Cliquez directement sur un élément dans la prévisualisation pour l'ajouter et le modifier.</p>
                             <div id="ecBlockList"></div>
                         </div>
                         <div class="ec-editor-panel">
@@ -2955,17 +3094,6 @@
                         <label class="ec-form-label" for="ecBulkLogoFile">Nouveau logo</label>
                         <input class="ec-input" type="file" id="ecBulkLogoFile" accept="image/*">
                         <div class="ec-file-note">Laisser vide pour ne pas changer le logo.</div>
-                    </div>
-                    <div>
-                        <label class="ec-form-label" for="ecBulkStampFile">Nouveau stamp</label>
-                        <input class="ec-input" type="file" id="ecBulkStampFile" accept="image/*">
-                        <div class="ec-file-note">Laisser vide pour ne pas changer le stamp.</div>
-                        <div class="ec-file-note">
-                            <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;margin-top:6px">
-                                <input type="checkbox" id="ecBulkDeleteStamp">
-                                <span>Supprimer le stamp</span>
-                            </label>
-                        </div>
                     </div>
                     <div>
                         <label class="ec-form-label" for="ecBulkBgColor">Nouvelle couleur de fond</label>
@@ -4185,14 +4313,21 @@
             ecJourneyMode = mode;
             document.getElementById('ecModeTriggerBtn').classList.toggle('active', mode === 'trigger');
             document.getElementById('ecModeTransactionalBtn').classList.toggle('active', mode === 'transactional');
-            document.getElementById('ecTransactionalBulkBar').style.display = mode === 'transactional' ? '' : 'none';
             ecApplyJourneyModeFilter();
             renderEcJourneys();
             ecUpdateTransactionalBulkState();
+            ecUpdateTriggerBulkState();
         }
 
         function ecUpdateTransactionalBulkState() {
+            document.getElementById('ecTransactionalBulkBar').style.display = ecSelectedTransactionalJourneys.size > 0 ? '' : 'none';
             document.getElementById('ecTransactionalSelectedCount').textContent = ecSelectedTransactionalJourneys.size;
+            const anySelected = ecSelectedTriggerEmails.size > 0 || ecSelectedTransactionalJourneys.size > 0;
+            const globalShow = anySelected ? 'flex' : 'none';
+            const gj = document.getElementById('ecGlobalClearBarJourneys');
+            const ge = document.getElementById('ecGlobalClearBarEmails');
+            if (gj) gj.style.display = globalShow;
+            if (ge) ge.style.display = globalShow;
             ecRenderSelectionSummary();
         }
 
@@ -4213,9 +4348,52 @@
             ecUpdateTransactionalBulkState();
         }
 
+        function ecDeselectLastTransactionalJourney() {
+            if (!ecSelectedTransactionalJourneys.size) return;
+            const ids = [...ecSelectedTransactionalJourneys];
+            ecSelectedTransactionalJourneys.delete(ids[ids.length - 1]);
+            renderEcJourneys();
+            ecRenderSelectionSummary();
+            ecUpdateTransactionalBulkState();
+        }
+
+        function ecDeselectTransactionalItem(id) {
+            ecSelectedTransactionalJourneys.delete(id);
+            renderEcJourneys();
+            ecRenderSelectionSummary();
+            ecUpdateTransactionalBulkState();
+        }
+
+        function ecClearAllSelections() {
+            ecSelectedTriggerEmails.clear();
+            ecSelectedTransactionalJourneys.clear();
+            _ecCardByKey.forEach(card => {
+                card.classList.remove('selected');
+                const btn = card.querySelector('.ec-card-check');
+                if (btn) {
+                    btn.classList.remove('active');
+                    const icon = btn.querySelector('i');
+                    if (icon) icon.className = 'fas fa-plus';
+                }
+            });
+            renderEcJourneys();
+            ecUpdateTriggerBulkState();
+            ecUpdateTransactionalBulkState();
+        }
+
         function ecUpdateTriggerBulkState() {
-            document.getElementById('ecTriggerBulkBar').style.display = ecJourneyMode === 'trigger' ? '' : 'none';
-            document.getElementById('ecTriggerSelectedCount').textContent = ecSelectedTriggerEmails.size;
+            const show = ecSelectedTriggerEmails.size > 0 ? '' : 'none';
+            const count = ecSelectedTriggerEmails.size;
+            document.getElementById('ecTriggerBulkBar').style.display = show;
+            document.getElementById('ecTriggerSelectedCount').textContent = count;
+            document.getElementById('ecTriggerBulkBarJourneys').style.display = show;
+            document.getElementById('ecTriggerSelectedCountJourneys').textContent = count;
+            const anySelected = ecSelectedTriggerEmails.size > 0 || ecSelectedTransactionalJourneys.size > 0;
+            const globalShow = anySelected ? 'flex' : 'none';
+            const gj = document.getElementById('ecGlobalClearBarJourneys');
+            const ge = document.getElementById('ecGlobalClearBarEmails');
+            if (gj) gj.style.display = globalShow;
+            if (ge) ge.style.display = globalShow;
             ecRenderSelectionSummary();
         }
 
@@ -4227,6 +4405,56 @@
             ].join('::');
         }
 
+        /* Indexed card registry — populated by renderEcEmails, gives O(1) lookup */
+        const _ecCardByKey = new Map();
+
+        /* Cache des emails par journey — évite les appels réseau répétés */
+        const _ecJourneyEmailsCache = new Map();
+
+        async function ecFetchJourneyEmails(journey) {
+            const cacheKey = String(journey.id || journey.key || '');
+            if (_ecJourneyEmailsCache.has(cacheKey)) {
+                return _ecJourneyEmailsCache.get(cacheKey);
+            }
+            const res = await fetch('/api/journey-emails', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ journey_id: journey.id, journey_key: journey.key })
+            });
+            const data = await safeJson(res);
+            if (data.success) {
+                _ecJourneyEmailsCache.set(cacheKey, data);
+            }
+            return data;
+        }
+
+        /* Pré-charge silencieusement les emails de toutes les journeys trigger
+           dès que la liste est disponible — sélection instantanée dès le 1er clic */
+        async function ecPrefetchTriggerEmails() {
+            const triggers = ecAllJourneys.filter(j => !ecIsTransactionalJourney(j));
+            for (const journey of triggers) {
+                const cacheKey = String(journey.id || journey.key || '');
+                if (_ecJourneyEmailsCache.has(cacheKey)) continue;
+                try {
+                    await ecFetchJourneyEmails(journey);
+                } catch (_) {
+                    /* erreur silencieuse — le clic fera un vrai appel si besoin */
+                }
+            }
+        }
+
+        function ecPatchEmailCardState(key, isSelected) {
+            const card = _ecCardByKey.get(key);
+            if (!card) return;
+            card.classList.toggle('selected', isSelected);
+            const btn = card.querySelector('.ec-card-check');
+            if (btn) {
+                btn.classList.toggle('active', isSelected);
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = `fas ${isSelected ? 'fa-check' : 'fa-plus'}`;
+            }
+        }
+
         function ecToggleTriggerEmail(index, event) {
             if (event) {
                 event.preventDefault();
@@ -4235,19 +4463,93 @@
             const email = ecEmails[index];
             if (!email) return;
             const key = ecGetTriggerSelectionKey(email);
-            if (ecSelectedTriggerEmails.has(key)) ecSelectedTriggerEmails.delete(key);
-            else ecSelectedTriggerEmails.set(key, {
-                ...email,
-                selection_key: key
-            });
-            renderEcEmails();
-            ecUpdateTriggerBulkState();
+            const wasSelected = ecSelectedTriggerEmails.has(key);
+            if (wasSelected) ecSelectedTriggerEmails.delete(key);
+            else ecSelectedTriggerEmails.set(key, { ...email, selection_key: key });
+
+            /* ── Phase 1 : rendu immédiat (même frame) ── */
+            ecPatchEmailCardState(key, !wasSelected);
+
+            /* Mise à jour compteurs seulement — pas de innerHTML */
+            const size = ecSelectedTriggerEmails.size;
+            const show = size > 0 ? '' : 'none';
+            const bar1 = document.getElementById('ecTriggerBulkBar');
+            const bar2 = document.getElementById('ecTriggerBulkBarJourneys');
+            const cnt1 = document.getElementById('ecTriggerSelectedCount');
+            const cnt2 = document.getElementById('ecTriggerSelectedCountJourneys');
+            if (bar1) bar1.style.display = show;
+            if (bar2) bar2.style.display = show;
+            if (cnt1) cnt1.textContent = size;
+            if (cnt2) cnt2.textContent = size;
+            const anySelected = size > 0 || ecSelectedTransactionalJourneys.size > 0;
+            const globalShow = anySelected ? 'flex' : 'none';
+            const gj = document.getElementById('ecGlobalClearBarJourneys');
+            const ge = document.getElementById('ecGlobalClearBarEmails');
+            if (gj) gj.style.display = globalShow;
+            if (ge) ge.style.display = globalShow;
+
+            /* ── Phase 2 : panneau de sélection (frame suivante) ── */
+            requestAnimationFrame(ecRenderSelectionSummary);
         }
 
         function ecClearTriggerEmailSelection() {
             ecSelectedTriggerEmails.clear();
-            renderEcEmails();
+            _ecCardByKey.forEach(card => {
+                card.classList.remove('selected');
+                const btn = card.querySelector('.ec-card-check');
+                if (btn) {
+                    btn.classList.remove('active');
+                    const icon = btn.querySelector('i');
+                    if (icon) icon.className = 'fas fa-plus';
+                }
+            });
             ecUpdateTriggerBulkState();
+        }
+
+        function ecDeselectLastTriggerEmail() {
+            if (!ecSelectedTriggerEmails.size) return;
+            const keys = [...ecSelectedTriggerEmails.keys()];
+            const lastKey = keys[keys.length - 1];
+            ecSelectedTriggerEmails.delete(lastKey);
+            ecPatchEmailCardState(lastKey, false);
+            ecUpdateTriggerBulkState();
+        }
+
+        function ecDeselectTriggerItem(key) {
+            ecSelectedTriggerEmails.delete(key);
+            ecPatchEmailCardState(key, false);
+            ecUpdateTriggerBulkState();
+        }
+
+        async function ecSelectJourneyForBulk(index, event) {
+            if (event) { event.preventDefault(); event.stopPropagation(); }
+            const journey = ecAllJourneys[index];
+            if (!journey) return;
+            const cacheKey = String(journey.id || journey.key || '');
+            const fromCache = _ecJourneyEmailsCache.has(cacheKey);
+            if (!fromCache) showLoading('Chargement des emails de la journey...');
+            try {
+                const data = await ecFetchJourneyEmails(journey);
+                if (!fromCache) hideLoading();
+                if (!data.success) { toast('Erreur: ' + (data.error || 'Erreur chargement'), 'error'); return; }
+                const emails = (data.emails || []).map(email => ({
+                    ...email,
+                    journey_key: data.journey_key || journey.key || null,
+                    journey_name: data.journey_name || journey.name || null
+                }));
+                if (!emails.length) { toast('Aucun email trouvé dans cette journey', 'warning'); return; }
+                emails.forEach(email => {
+                    const key = ecGetTriggerSelectionKey(email);
+                    ecSelectedTriggerEmails.set(key, { ...email, selection_key: key });
+                });
+                renderEcJourneys();
+                ecRenderSelectionSummary();
+                ecUpdateTriggerBulkState();
+                toast(`${emails.length} email(s) ajouté(s) depuis "${journey.name}"`, 'success');
+            } catch (e) {
+                if (!fromCache) hideLoading();
+                toast('Erreur: ' + e.message, 'error');
+            }
         }
 
         function ecGetSelectedTransactionalJourneys() {
@@ -4267,7 +4569,7 @@
 
             const renderGroup = (title, icon, items, kind) => {
                 if (!items.length) return '';
-                const rows = items.map(item => {
+                const rows = items.map((item, selIdx) => {
                     const name = kind === 'trigger'
                         ? (item.name || item.activity_name || 'Email')
                         : (item.name || 'Journey');
@@ -4277,9 +4579,15 @@
                     const meta = kind === 'trigger'
                         ? (item.asset_id ? `ID ${item.asset_id}` : 'Trigger')
                         : (item.version ? `v${item.version}` : 'Transactionnel');
+                    const safeKey = (item.selection_key || '').replace(/'/g, "\\'");
+                    const safeId = String(item.id || '').replace(/'/g, "\\'");
+                    const removeBtn = kind === 'trigger'
+                        ? `<button onclick="ecDeselectTriggerItem('${safeKey}')" title="Désélectionner" style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:1rem;padding:2px 6px;border-radius:4px;line-height:1" onmouseover="this.style.background='var(--danger-soft)'" onmouseout="this.style.background='none'">×</button>`
+                        : `<button onclick="ecDeselectTransactionalItem('${safeId}')" title="Désélectionner" style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:1rem;padding:2px 6px;border-radius:4px;line-height:1" onmouseover="this.style.background='var(--danger-soft)'" onmouseout="this.style.background='none'">×</button>`;
                     return `
-                        <div class="ec-selection-item ${kind}">
-                            <div class="ec-selection-main">
+                        <div class="ec-selection-item ${kind}" style="display:flex;align-items:center;gap:6px">
+                            <span style="font-size:0.65rem;color:var(--text-muted);min-width:16px;text-align:right">${selIdx + 1}</span>
+                            <div class="ec-selection-main" style="flex:1;min-width:0">
                                 <div class="ec-selection-name">${esc(name)}</div>
                                 <div class="ec-selection-route"><i class="fas fa-route"></i>${esc(route)}</div>
                             </div>
@@ -4290,6 +4598,7 @@
                                 </span>
                                 <span style="font-size:0.7rem;color:var(--text-muted)">${esc(meta)}</span>
                             </div>
+                            ${removeBtn}
                         </div>
                     `;
                 }).join('');
@@ -4385,6 +4694,7 @@
                 renderEcJourneys();
                 ecUpdateTransactionalBulkState();
                 ecRenderSelectionSummary();
+                ecPrefetchTriggerEmails(); /* arrière-plan — pas d'await */
             } catch (e) {
                 document.getElementById('ecJourneyListBody').innerHTML = `
                     <div class="empty-state">
@@ -4431,7 +4741,11 @@
                                     <button class="ec-card-check ${isSelected ? 'active' : ''}" onclick="ecToggleTransactionalJourney('${esc(String(j.id))}', event)" title="Sélectionner pour le bulk">
                                         <i class="fas ${isSelected ? 'fa-check' : 'fa-plus'}"></i>
                                     </button>
-                                ` : ''}
+                                ` : `
+                                    <button class="ec-card-check" onclick="ecSelectJourneyForBulk(${idx}, event)" title="Sélectionner tous les emails de cette journey">
+                                        <i class="fas fa-layer-group"></i>
+                                    </button>
+                                `}
                             </div>
                         </div>`;
                 }).join('') +
@@ -4443,21 +4757,17 @@
             ecShowView('emails');
             ecUpdateTriggerBulkState();
             document.getElementById('ecEmailsJourneyName').textContent = ecSelectedJourney.name;
-            document.getElementById('ecEmailListBody').innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon"><i class="fas fa-spinner fa-spin"></i></div>
-                    <h3>Chargement des emails...</h3>
-                </div>`;
+            const cacheKey = String(ecSelectedJourney.id || ecSelectedJourney.key || '');
+            const fromCache = _ecJourneyEmailsCache.has(cacheKey);
+            if (!fromCache) {
+                document.getElementById('ecEmailListBody').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                        <h3>Chargement des emails...</h3>
+                    </div>`;
+            }
             try {
-                const res = await fetch('/api/journey-emails', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        journey_id: ecSelectedJourney.id,
-                        journey_key: ecSelectedJourney.key
-                    })
-                });
-                const data = await safeJson(res);
+                const data = await ecFetchJourneyEmails(ecSelectedJourney);
                 if (!data.success) {
                     document.getElementById('ecEmailListBody').innerHTML = `
                         <div class="empty-state">
@@ -4484,18 +4794,12 @@
 
         async function ecOpenTransactionalJourney(index) {
             ecSelectedJourney = ecAllJourneys[index];
-            showLoading('Chargement de l\'email transactionnel...');
+            const cacheKey = String(ecSelectedJourney.id || ecSelectedJourney.key || '');
+            const fromCache = _ecJourneyEmailsCache.has(cacheKey);
+            if (!fromCache) showLoading('Chargement de l\'email transactionnel...');
             try {
-                const res = await fetch('/api/journey-emails', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        journey_id: ecSelectedJourney.id,
-                        journey_key: ecSelectedJourney.key
-                    })
-                });
-                const data = await safeJson(res);
-                hideLoading();
+                const data = await ecFetchJourneyEmails(ecSelectedJourney);
+                if (!fromCache) hideLoading();
                 if (!data.success) throw new Error(data.error || 'Erreur chargement');
                 ecEmails = (data.emails || []).map(email => ({
                     ...email,
@@ -4511,12 +4815,13 @@
                 renderEcEmails();
                 ecUpdateTriggerBulkState();
             } catch (e) {
-                hideLoading();
+                if (!fromCache) hideLoading();
                 toast('Erreur chargement: ' + e.message, 'error');
             }
         }
 
         function renderEcEmails() {
+            _ecCardByKey.clear();
             const el = document.getElementById('ecEmailListBody');
             if (ecEmails.length === 0) {
                 el.innerHTML = `
@@ -4528,11 +4833,10 @@
             }
             el.innerHTML = '<div class="ec-email-grid">' +
                 ecEmails.map((email, i) => {
-                    const emailKey = String(email.asset_id);
                     const selectionKey = ecGetTriggerSelectionKey(email);
                     const isSelected = ecSelectedTriggerEmails.has(selectionKey);
                     return `
-                    <div class="ec-email-card ${isSelected ? 'selected' : ''}" onclick="ecOpenEmail(${i})">
+                    <div class="ec-email-card ${isSelected ? 'selected' : ''}" data-ec-key="${selectionKey}" onclick="ecOpenEmail(${i})">
                         <div class="ec-email-icon"><i class="fas fa-envelope"></i></div>
                         <div class="ec-card-body">
                             <div class="ec-email-name">${esc(email.name || email.activity_name || 'Email')}</div>
@@ -4544,6 +4848,10 @@
                     </div>`;
                 }).join('') +
             '</div>';
+            /* Remplir le registre O(1) après injection DOM */
+            el.querySelectorAll('.ec-email-card[data-ec-key]').forEach(card => {
+                _ecCardByKey.set(card.dataset.ecKey, card);
+            });
         }
 
         function ecGoToJourneys() { ecShowView('journeys'); ecUpdateTransactionalBulkState(); }
@@ -4579,7 +4887,9 @@
                 ecOriginalHtml = data.html  || '';
                 ecPendingImages.clear();
                 ecCurrentHtml  = ecOriginalHtml;
-                ecBlocks = ecParseBlocks(ecCurrentHtml);
+                const allDetectedBlocks = ecParseBlocks(ecCurrentHtml);
+                // Only background is auto-detected — all other blocks appear on click in preview
+                ecBlocks = allDetectedBlocks.filter(b => b.type === 'background');
                 ecSelectedBlock = null;
                 renderEcBlockPanel();
                 renderEcEditorForm(null);
@@ -4594,8 +4904,6 @@
         function ecOpenBulkModal(mode) {
             ecBulkMode = mode;
             document.getElementById('ecBulkLogoFile').value = '';
-            document.getElementById('ecBulkStampFile').value = '';
-            document.getElementById('ecBulkDeleteStamp').checked = false;
             document.getElementById('ecBulkApplyBg').checked = false;
             const triggerCount = ecGetSelectedTriggerEmails().length;
             const transactionalCount = ecGetSelectedTransactionalJourneys().length;
@@ -4710,18 +5018,11 @@
 
         async function ecSubmitBulkChanges() {
             const logoFile = document.getElementById('ecBulkLogoFile').files[0];
-            const stampFile = document.getElementById('ecBulkStampFile').files[0];
-            const deleteStamp = document.getElementById('ecBulkDeleteStamp').checked;
             const applyBg = document.getElementById('ecBulkApplyBg').checked;
             const bgColor = document.getElementById('ecBulkBgColor').value;
             const modifications = {};
 
-            if (deleteStamp && stampFile) {
-                toast('Choisissez soit un nouveau stamp, soit la suppression du stamp', 'warning');
-                return;
-            }
-
-            if (!logoFile && !stampFile && !deleteStamp && !applyBg) {
+            if (!logoFile && !applyBg) {
                 toast('Sélectionnez au moins une modification à appliquer', 'warning');
                 return;
             }
@@ -4730,12 +5031,6 @@
                 showLoading('Préparation du bulk...');
                 if (logoFile) {
                     modifications.new_logo_url = await ecUploadBulkImage(logoFile);
-                }
-                if (stampFile) {
-                    modifications.new_stamp_url = await ecUploadBulkImage(stampFile);
-                }
-                if (deleteStamp) {
-                    modifications.delete_stamp = true;
                 }
                 if (applyBg) {
                     modifications.bg_color = bgColor;
@@ -4867,14 +5162,6 @@
                     width: parseInt(img.getAttribute('width') || '200'),
                     height: parseInt(img.getAttribute('height') || '60') });
             }
-            if (visibleImgs[1]) {
-                const { img, domIndex } = visibleImgs[1];
-                blocks.push({ type: 'stamp', label: 'Stamp', imgIndex: domIndex,
-                    src: img.getAttribute('src') || '',
-                    originalSrc: img.getAttribute('src') || '',
-                    width: parseInt(img.getAttribute('width') || '200'),
-                    height: parseInt(img.getAttribute('height') || '200') });
-            }
 
             const seen = new Set(); let bgIdx = 0;
             const bgLabelCounts = {};
@@ -4979,12 +5266,14 @@
             // ── IMAGES (src / width / height) ──────────────────────────────────────
             // Find the nth <img> tag via regex and patch only its attributes.
             // This keeps the rest of the HTML byte-for-byte identical to the original.
-            if ((block.type === 'logo' || block.type === 'stamp' || block.type === 'image') && !changes.deleted) {
+            if ((block.type === 'logo' || block.type === 'image') && !changes.deleted) {
                 let count = 0;
                 const target = block.imgIndex;
-                return htmlString.replace(/<img(\s[^>]*)?\/?>/gi, (match) => {
+                let imgPos = -1;
+                let result = htmlString.replace(/<img(\s[^>]*)?\/?>/gi, (match, p1, offset) => {
                     if (count !== target) { count++; return match; }
                     count++;
+                    imgPos = offset;
                     let tag = match;
                     if (changes.src) {
                         tag = setAttrInTag(tag, 'src', changes.src);
@@ -5001,6 +5290,18 @@
                     }
                     return tag;
                 });
+                // Sync the nearest parent <table> width so the image stays centered
+                if (changes.width !== undefined && imgPos >= 0) {
+                    const before = result.slice(0, imgPos);
+                    const tStart = before.lastIndexOf('<table');
+                    if (tStart >= 0) {
+                        const tEnd = result.indexOf('>', tStart) + 1;
+                        const tableTag = result.slice(tStart, tEnd);
+                        const updated = setAttrInTag(tableTag, 'width', changes.width);
+                        result = result.slice(0, tStart) + updated + result.slice(tEnd);
+                    }
+                }
+                return result;
             }
 
             // ── DELETION / TEXT CHANGES ────────────────────────────────────────────
@@ -5028,7 +5329,7 @@
                     stripFontSizeClasses(titleEl);
                     setStyleProp(titleEl, 'font-size', changes.fontSize + 'px !important');
                 }
-            } else if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+            } else if (block.type === 'logo' || block.type === 'image') {
                 // deletion path
                 const img = doc.querySelectorAll('img')[block.imgIndex];
                 if (!img) return htmlString;
@@ -5048,7 +5349,7 @@
         }
 
         function renderEcBlockPanel() {
-            const icons = { logo: 'fa-image', stamp: 'fa-stamp', title: 'fa-heading', text: 'fa-font', background: 'fa-fill-drip' };
+            const icons = { logo: 'fa-image', title: 'fa-heading', text: 'fa-font', background: 'fa-fill-drip', image: 'fa-image' };
             const el = document.getElementById('ecBlockList');
             if (ecBlocks.length === 0) {
                 el.innerHTML = '<div style="padding:12px;font-size:0.82rem;color:var(--text-muted)">Aucun bloc détecté</div>';
@@ -5073,6 +5374,7 @@
                     ecDraftHtml = null;
                 }
                 prevBlock.__draftDirty = false;
+                ecMarkDirty();
             }
             ecSelectedBlock = i;
             renderEcBlockPanel();
@@ -5100,7 +5402,7 @@
                 const fontSize = parseInt(document.getElementById('ecTitleSize')?.value);
                 changes.text = text;
                 if (!isNaN(fontSize) && fontSize > 0) changes.fontSize = fontSize;
-            } else if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+            } else if (block.type === 'logo' || block.type === 'image') {
                 const w = parseInt(document.getElementById('ecWidth')?.value);
                 const h = parseInt(document.getElementById('ecHeight')?.value);
                 if (!isNaN(w) && w > 0) changes.width = w;
@@ -5127,13 +5429,22 @@
                 const doc = document.getElementById('ecPreviewFrame')?.contentDocument;
                 if (!doc || !doc.body) return false;
 
-                if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+                if (block.type === 'logo' || block.type === 'image') {
                     const img = doc.querySelectorAll('img')[block.imgIndex];
                     if (!img) return false;
                     if (changes.width !== undefined) {
                         img.setAttribute('width', String(changes.width));
                         img.style.setProperty('width', changes.width + 'px', 'important');
                         img.style.setProperty('max-width', changes.width + 'px', 'important');
+                        // Sync parent <table> so centered alignment is preserved
+                        let tableEl = img.parentElement;
+                        while (tableEl && tableEl.tagName !== 'TABLE' && tableEl.tagName !== 'BODY') {
+                            tableEl = tableEl.parentElement;
+                        }
+                        if (tableEl && tableEl.tagName === 'TABLE') {
+                            tableEl.setAttribute('width', String(changes.width));
+                            tableEl.style.setProperty('width', changes.width + 'px', 'important');
+                        }
                     }
                     if (changes.height !== undefined) {
                         img.setAttribute('height', String(changes.height));
@@ -5176,7 +5487,7 @@
                 el.innerHTML = '<div style="color:var(--text-muted);font-size:0.84rem;padding:16px">Sélectionnez un bloc dans la liste.</div>';
                 return;
             }
-            if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+            if (block.type === 'logo' || block.type === 'image') {
                 el.innerHTML = `
                     <div class="ec-form-group">
                         <label class="ec-form-label">Image actuelle</label>
@@ -5195,18 +5506,17 @@
                             <input type="number" class="ec-input" id="ecHeight" min="10" max="600" value="${block.height || ''}" oninput="ecApplyDraftChange()" placeholder="H">
                         </div>
                     </div>
-                    ${block.type === 'stamp' ? `<div class="ec-form-group">
-                        <button class="ec-btn-danger" onclick="ecDeleteStamp()">
-                            <i class="fas fa-trash"></i> Supprimer le stamp
-                        </button></div>` : ''}
                     <div class="ec-form-group">
-                        <button class="btn btn-primary btn-sm" id="ecTempSaveBtn" onclick="ecTempSaveBlock()" style="${block.__draftDirty ? '' : 'display:none'}">
+                        <button class="btn btn-primary btn-sm has-tooltip" id="ecTempSaveBtn" onclick="ecTempSaveBlock()" style="${block.__draftDirty ? '' : 'display:none'}" data-tooltip="Sauvegarde la sélection en session.\nSera perdue si la page est rechargée.">
                             <i class="fas fa-floppy-disk"></i> Sauvegarder temporairement
                         </button>
                     </div>`;
             } else if (block.type === 'title' || block.type === 'text') {
                 el.innerHTML = `
-                    ${block.hasRichHtml ? `<div style="font-size:0.76rem;line-height:1.4;color:var(--warning);background:var(--warning-soft);border-radius:6px;padding:8px 10px;margin-bottom:10px">
+                    <div style="font-size:0.76rem;line-height:1.4;color:var(--warning);background:var(--warning-soft);border-radius:6px;padding:8px 10px;margin-bottom:10px">
+                        <strong>Attention :</strong> Ce bloc peut contenir du code AMPscript (<code>%%variable%%</code>, <code>SET @var</code>, etc.). Modifier le texte brut peut casser la personnalisation. Vérifiez le contenu avant de sauvegarder.
+                    </div>
+                    ${block.hasRichHtml ? `<div style="font-size:0.76rem;line-height:1.4;color:var(--text-muted);background:var(--bg-warm);border-radius:6px;padding:8px 10px;margin-bottom:10px">
                         Ce bloc contient des liens ou des retours ligne. Modifier tout le texte peut simplifier le HTML interne.
                     </div>` : ''}
                     <div class="ec-form-group">
@@ -5218,7 +5528,7 @@
                         <input type="number" class="ec-input" id="ecTitleSize" min="8" max="72" value="${block.fontSize || ''}" oninput="ecApplyDraftChange()" placeholder="23">
                     </div>
                     <div class="ec-form-group">
-                        <button class="btn btn-primary btn-sm" id="ecTempSaveBtn" onclick="ecTempSaveBlock()" style="${block.__draftDirty ? '' : 'display:none'}">
+                        <button class="btn btn-primary btn-sm has-tooltip" id="ecTempSaveBtn" onclick="ecTempSaveBlock()" style="${block.__draftDirty ? '' : 'display:none'}" data-tooltip="Sauvegarde la sélection en session.\nSera perdue si la page est rechargée.">
                             <i class="fas fa-floppy-disk"></i> Sauvegarder temporairement
                         </button>
                     </div>`;
@@ -5237,7 +5547,7 @@
                         <div style="font-family:monospace;font-size:0.8rem;padding:4px 8px;background:var(--bg-warm);border-radius:4px">${esc(block.color)}</div>
                     </div>
                     <div class="ec-form-group">
-                        <button class="btn btn-primary btn-sm" id="ecTempSaveBtn" onclick="ecTempSaveBlock()" style="${block.__draftDirty ? '' : 'display:none'}">
+                        <button class="btn btn-primary btn-sm has-tooltip" id="ecTempSaveBtn" onclick="ecTempSaveBlock()" style="${block.__draftDirty ? '' : 'display:none'}" data-tooltip="Sauvegarde la sélection en session.\nSera perdue si la page est rechargée.">
                             <i class="fas fa-floppy-disk"></i> Sauvegarder temporairement
                         </button>
                     </div>`;
@@ -5304,7 +5614,7 @@
                 } else if (block.type === 'background') {
                     const color = document.getElementById('ecBgColor')?.value;
                     if (color) changes.color = color;
-                } else if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+                } else if (block.type === 'logo' || block.type === 'image') {
                     const w = parseInt(document.getElementById('ecWidth')?.value);
                     const h = parseInt(document.getElementById('ecHeight')?.value);
                     if (!isNaN(w) && w > 0) changes.width = w;
@@ -5325,7 +5635,7 @@
             } else if (block.type === 'background') {
                 const color = document.getElementById('ecBgColor')?.value;
                 if (color) block.color = color;
-            } else if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+            } else if (block.type === 'logo' || block.type === 'image') {
                 const w = parseInt(document.getElementById('ecWidth')?.value);
                 const h = parseInt(document.getElementById('ecHeight')?.value);
                 if (!isNaN(w) && w > 0) block.width = w;
@@ -5412,7 +5722,7 @@
                 return;
             }
 
-            if (block.type === 'logo' || block.type === 'stamp' || block.type === 'image') {
+            if (block.type === 'logo' || block.type === 'image') {
                 const w = parseInt(document.getElementById('ecWidth')?.value);
                 const h = parseInt(document.getElementById('ecHeight')?.value);
                 const changes = {};
@@ -5476,17 +5786,6 @@
             }
         }
 
-        function ecDeleteStamp() {
-            const block = ecBlocks[ecSelectedBlock];
-            if (!block || block.type !== 'stamp') return;
-            if (!confirm('Supprimer le stamp de cet email ?')) return;
-            ecCurrentHtml = ecApplyChange(ecCurrentHtml, block, { deleted: true });
-            ecBlocks = ecParseBlocks(ecCurrentHtml);
-            ecSelectedBlock = null;
-            renderEcBlockPanel(); renderEcEditorForm(null); ecMarkDirty(); ecUpdatePreview();
-            toast('Stamp supprimé', 'success');
-        }
-
         function ecMarkDirty() {
             ecIsDirty = true;
             document.getElementById('ecBtnReset').style.display = '';
@@ -5517,7 +5816,7 @@
             }
 
             ecBlocks.forEach((block, blockIndex) => {
-                if (block.type === 'logo' || block.type === 'stamp') {
+                if (block.type === 'logo') {
                     markBlockTarget(doc.querySelectorAll('img')[block.imgIndex], blockIndex);
                 } else if (block.type === 'title' || block.type === 'text') {
                     markBlockTarget(doc.querySelectorAll(ecGetTextSelectors())[block.domIndex], blockIndex);
@@ -5537,7 +5836,7 @@
 
         function ecFindBlockIndex(candidate) {
             return ecBlocks.findIndex(block => {
-                if ((candidate.type === 'image') && ['logo', 'stamp', 'image'].includes(block.type)) {
+                if ((candidate.type === 'image') && ['logo', 'image'].includes(block.type)) {
                     return block.imgIndex === candidate.imgIndex;
                 }
                 if ((candidate.type === 'title' || candidate.type === 'text') && ['title', 'text'].includes(block.type)) {
@@ -5748,7 +6047,8 @@
         function ecReset() {
             if (!confirm('Annuler toutes les modifications ?')) return;
             ecCurrentHtml = ecOriginalHtml;
-            ecBlocks = ecParseBlocks(ecCurrentHtml);
+            ecDraftHtml = null;
+            ecBlocks = ecParseBlocks(ecCurrentHtml).filter(b => b.type === 'background');
             ecSelectedBlock = null; ecIsDirty = false;
             document.getElementById('ecBtnReset').style.display = 'none';
             renderEcBlockPanel(); renderEcEditorForm(null); ecUpdatePreview();
