@@ -620,6 +620,74 @@ def open_journey_email():
         return jsonify({'success': False, 'error': str(e)})
 
 
+@app.route('/api/detect-font-sizes', methods=['POST'])
+def detect_font_sizes():
+    try:
+        api = get_api()
+        data = request.get_json() or {}
+        trigger_targets = data.get('trigger_targets', []) or []
+        journey_keys = data.get('journey_keys', []) or []
+
+        def extract_sizes_from_html(html):
+            if not html:
+                return set()
+            sizes = set()
+            try:
+                from bs4 import BeautifulSoup, NavigableString
+                soup = BeautifulSoup(html, 'html.parser')
+                text_tags = ['td', 'span', 'div', 'p', 'font', 'center', 'strong',
+                             'b', 'em', 'i', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+                for el in soup.find_all(text_tags):
+                    if el.find_parent('a'):
+                        continue
+                    style_attr = el.get('style', '') or ''
+                    if re.search(r'display\s*:\s*none', style_attr, re.I):
+                        continue
+                    direct = ''.join(str(c) for c in el.children if isinstance(c, NavigableString))
+                    if not direct.strip():
+                        continue
+                    m = re.search(r'font-size\s*:\s*(\d+)px', style_attr, re.I)
+                    if m:
+                        s = int(m.group(1))
+                        if 8 <= s <= 200:
+                            sizes.add(s)
+            except Exception:
+                pass
+            return sizes
+
+        def get_html_for_asset(asset_id):
+            try:
+                asset = api.get_asset_by_id(asset_id)
+                return (asset.get('views', {}).get('html', {}).get('content', '')
+                        or asset.get('content', '') or '')
+            except Exception:
+                return ''
+
+        all_sizes = set()
+        seen = set()
+
+        for t in trigger_targets:
+            aid = t.get('asset_id')
+            if aid and aid not in seen:
+                seen.add(aid)
+                all_sizes.update(extract_sizes_from_html(get_html_for_asset(aid)))
+
+        for jkey in journey_keys:
+            try:
+                activities, _ = api.get_journey_activities(None, journey_key=jkey)
+                for act in activities:
+                    aid = extract_asset_id(act)
+                    if aid and aid not in seen:
+                        seen.add(aid)
+                        all_sizes.update(extract_sizes_from_html(get_html_for_asset(aid)))
+            except Exception:
+                pass
+
+        return jsonify({'success': True, 'font_sizes': sorted(all_sizes)})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
 @app.route('/api/email-change-bulk', methods=['POST'])
 def email_change_bulk():
     try:

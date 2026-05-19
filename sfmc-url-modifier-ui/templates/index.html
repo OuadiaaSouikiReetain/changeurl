@@ -2892,10 +2892,14 @@
                             <button class="btn btn-danger btn-sm" onclick="ecClearAllSelections()"><i class="fas fa-trash-can"></i> Tout désélectionner</button>
                         </div>
                         <div class="ec-selection-panel hidden" id="ecJourneySelectionSummary"></div>
-                        <div class="search-bar">
+                        <div style="display:flex;flex-direction:column;gap:6px;padding:10px 14px;border-bottom:1px solid var(--border)">
                             <div class="search-input-wrap">
-                                <i class="fas fa-search"></i>
+                                <i class="fas fa-route"></i>
                                 <input type="text" class="search-input" id="ecSearchJourney" placeholder="Rechercher une journey..." oninput="ecFilterJourneys()">
+                            </div>
+                            <div class="search-input-wrap">
+                                <i class="fas fa-envelope"></i>
+                                <input type="text" class="search-input" id="ecSearchActivity" placeholder="Rechercher une activité email..." oninput="ecFilterJourneys()">
                             </div>
                         </div>
                         <div id="ecJourneyListBody">
@@ -3104,6 +3108,17 @@
                                 <span>Appliquer la couleur de fond</span>
                             </label>
                         </div>
+                    </div>
+                    <div>
+                        <label class="ec-form-label">Remplacement de tailles de texte</label>
+                        <div id="ecBulkFontSizeDetect" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                            <i class="fas fa-spinner fa-spin"></i> Détection des tailles en cours...
+                        </div>
+                        <div id="ecBulkFontSizeRows" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="ecAddFontSizeRow()">
+                            <i class="fas fa-plus"></i> Ajouter une règle
+                        </button>
+                        <div class="ec-file-note">Tailles détectées automatiquement depuis les emails sélectionnés. Renseignez "À" pour appliquer le changement.</div>
                     </div>
                 </div>
             </div>
@@ -4289,6 +4304,8 @@
         let ecSelectedTransactionalJourneys = new Set();
         let ecSelectedTriggerEmails = new Map();
         let ecBulkMode = null;
+        let _ecActivityMatchedJourneys = new Map();
+        let ecEmailActivityFilter = null;
 
         function ecShowView(view) {
             document.getElementById('ecViewJourneys').style.display = view === 'journeys' ? '' : 'none';
@@ -4301,12 +4318,27 @@
         }
 
         function ecApplyJourneyModeFilter() {
-            const q = document.getElementById('ecSearchJourney').value.toLowerCase().trim();
+            const qJourney = document.getElementById('ecSearchJourney').value.toLowerCase().trim();
+            const qActivity = (document.getElementById('ecSearchActivity')?.value || '').toLowerCase().trim();
             const modeFiltered = ecAllJourneys.filter(j =>
                 ecJourneyMode === 'transactional' ? ecIsTransactionalJourney(j) : !ecIsTransactionalJourney(j)
             );
-            ecFilteredJourneys = q ? modeFiltered.filter(j => j.name.toLowerCase().includes(q)) : modeFiltered;
             document.getElementById('emailChangeCount').textContent = modeFiltered.length;
+            _ecActivityMatchedJourneys.clear();
+            ecFilteredJourneys = modeFiltered.filter(j => {
+                const matchesJourney = !qJourney || j.name.toLowerCase().includes(qJourney);
+                if (!matchesJourney) return false;
+                if (!qActivity) return true;
+                const cacheKey = String(j.id || j.key || '');
+                const cached = _ecJourneyEmailsCache.get(cacheKey);
+                if (cached?.emails) {
+                    const matched = cached.emails.filter(e =>
+                        (e.activity_name || e.name || '').toLowerCase().includes(qActivity)
+                    );
+                    if (matched.length) { _ecActivityMatchedJourneys.set(cacheKey, matched); return true; }
+                }
+                return false;
+            });
         }
 
         function ecSetJourneyMode(mode) {
@@ -4726,11 +4758,15 @@
                     const statusClass = j.status === 'Running' ? 'running' : j.status === 'Draft' ? 'draft' : 'stopped';
                     const isTransactional = ecIsTransactionalJourney(j);
                     const isSelected = ecSelectedTransactionalJourneys.has(j.id);
+                    const cacheKey = String(j.id || j.key || '');
+                    const actMatches = _ecActivityMatchedJourneys.get(cacheKey);
+                    const actBadge = actMatches ? `<div style="font-size:0.72rem;color:var(--accent);margin-top:3px;display:flex;align-items:center;gap:4px"><i class="fas fa-envelope" style="font-size:0.65rem"></i> ${actMatches.length} activité(s) trouvée(s)</div>` : '';
                     return `
                         <div class="ec-journey-card ${isSelected ? 'selected' : ''}" onclick="${isTransactional ? `ecOpenTransactionalJourney(${idx})` : `ecSelectJourney(${idx})`}">
                             <div class="ec-card-main">
                                 <div class="ec-card-body">
                                     <div class="ec-journey-name">${esc(j.name)}</div>
+                                    ${actBadge}
                                     <div class="ec-journey-meta">
                                         <span class="status-pill ${statusClass}">${esc(j.status || '–')}</span>
                                         ${j.country ? `<span><i class="fas fa-globe" style="font-size:0.62rem"></i> ${esc(j.country)}</span>` : ''}
@@ -4754,6 +4790,8 @@
 
         async function ecSelectJourney(index) {
             ecSelectedJourney = ecAllJourneys[index];
+            const _ck = String(ecSelectedJourney.id || ecSelectedJourney.key || '');
+            ecEmailActivityFilter = _ecActivityMatchedJourneys.get(_ck) || null;
             ecShowView('emails');
             ecUpdateTriggerBulkState();
             document.getElementById('ecEmailsJourneyName').textContent = ecSelectedJourney.name;
@@ -4820,19 +4858,43 @@
             }
         }
 
+        function ecClearEmailActivityFilter() {
+            ecEmailActivityFilter = null;
+            renderEcEmails();
+        }
+
         function renderEcEmails() {
             _ecCardByKey.clear();
             const el = document.getElementById('ecEmailListBody');
-            if (ecEmails.length === 0) {
-                el.innerHTML = `
+
+            /* Filtre par activité si actif */
+            let displayEmails = ecEmails;
+            if (ecEmailActivityFilter) {
+                const matchedIds = new Set(ecEmailActivityFilter.map(e => String(e.activity_id || '')).filter(Boolean));
+                displayEmails = ecEmails.filter(e => matchedIds.has(String(e.activity_id || '')));
+            }
+
+            /* Banner filtre */
+            const filterBanner = ecEmailActivityFilter
+                ? `<div style="display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--accent-soft);border-bottom:1px solid var(--border);font-size:0.8rem;color:var(--accent)">
+                       <i class="fas fa-filter"></i>
+                       <span>${displayEmails.length} activité(s) filtrée(s)</span>
+                       <button class="btn btn-ghost btn-sm" style="margin-left:auto;font-size:0.78rem" onclick="ecClearEmailActivityFilter()">Voir tous les emails</button>
+                   </div>`
+                : '';
+
+            if (displayEmails.length === 0) {
+                el.innerHTML = filterBanner + `
                     <div class="empty-state">
                         <div class="empty-state-icon"><i class="fas fa-inbox"></i></div>
                         <h3>Aucun email</h3><p>Aucun email trouvé dans cette journey</p>
                     </div>`;
                 return;
             }
-            el.innerHTML = '<div class="ec-email-grid">' +
-                ecEmails.map((email, i) => {
+
+            el.innerHTML = filterBanner + '<div class="ec-email-grid">' +
+                displayEmails.map(email => {
+                    const i = ecEmails.indexOf(email);
                     const selectionKey = ecGetTriggerSelectionKey(email);
                     const isSelected = ecSelectedTriggerEmails.has(selectionKey);
                     return `
@@ -4854,7 +4916,7 @@
             });
         }
 
-        function ecGoToJourneys() { ecShowView('journeys'); ecUpdateTransactionalBulkState(); }
+        function ecGoToJourneys() { ecEmailActivityFilter = null; ecShowView('journeys'); ecUpdateTransactionalBulkState(); }
         function ecGoToEmails()   { ecShowView('emails'); ecUpdateTriggerBulkState(); }
 
         async function ecOpenEmail(index) {
@@ -4901,10 +4963,75 @@
             }
         }
 
+        function ecAddFontSizeRow(fromSize) {
+            const container = document.getElementById('ecBulkFontSizeRows');
+            const row = document.createElement('div');
+            row.className = 'ec-font-size-row';
+            row.style.cssText = 'display:flex;align-items:center;gap:8px';
+            row.innerHTML = `
+                <span style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap">De</span>
+                <input type="number" class="ec-input ec-font-size-from" style="width:64px;padding:6px 8px" placeholder="20" min="1" max="200" value="${fromSize != null ? fromSize : ''}">
+                <span style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap">px → À</span>
+                <input type="number" class="ec-input ec-font-size-to" style="width:64px;padding:6px 8px" placeholder="?" min="1" max="200">
+                <span style="font-size:0.8rem;color:var(--text-muted)">px</span>
+                <button class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()" title="Supprimer"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(row);
+        }
+
+        function ecGetFontSizeReplacements() {
+            const rows = document.querySelectorAll('#ecBulkFontSizeRows .ec-font-size-row');
+            const result = [];
+            rows.forEach(row => {
+                const fromVal = parseFloat(row.querySelector('.ec-font-size-from').value);
+                const toVal = parseFloat(row.querySelector('.ec-font-size-to').value);
+                if (!isNaN(fromVal) && !isNaN(toVal) && fromVal > 0 && toVal > 0) {
+                    result.push({ from_size: fromVal, to_size: toVal });
+                }
+            });
+            return result;
+        }
+
+        async function ecDetectFontSizes() {
+            const detectEl = document.getElementById('ecBulkFontSizeDetect');
+            const rowsEl = document.getElementById('ecBulkFontSizeRows');
+            detectEl.style.display = 'flex';
+            detectEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Détection des tailles en cours...';
+            rowsEl.innerHTML = '';
+            try {
+                const payload = {};
+                if (ecBulkMode === 'trigger' || ecBulkMode === 'mixed') {
+                    payload.trigger_targets = Array.from(ecSelectedTriggerEmails.values()).map(e => ({ asset_id: e.asset_id }));
+                }
+                if (ecBulkMode === 'transactional' || ecBulkMode === 'mixed') {
+                    payload.journey_keys = ecAllJourneys
+                        .filter(j => ecSelectedTransactionalJourneys.has(j.id))
+                        .map(j => j.key).filter(Boolean);
+                }
+                const res = await fetch('/api/detect-font-sizes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await safeJson(res);
+                if (data.success && data.font_sizes && data.font_sizes.length) {
+                    detectEl.innerHTML = `<i class="fas fa-check" style="color:var(--success)"></i> ${data.font_sizes.length} taille(s) détectée(s)`;
+                    data.font_sizes.forEach(size => ecAddFontSizeRow(size));
+                } else {
+                    detectEl.innerHTML = '<i class="fas fa-info-circle"></i> Aucune taille détectée — ajoutez manuellement.';
+                }
+            } catch(e) {
+                detectEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erreur de détection — ajoutez manuellement.';
+            }
+        }
+
         function ecOpenBulkModal(mode) {
             ecBulkMode = mode;
             document.getElementById('ecBulkLogoFile').value = '';
             document.getElementById('ecBulkApplyBg').checked = false;
+            document.getElementById('ecBulkFontSizeRows').innerHTML = '';
+            document.getElementById('ecBulkFontSizeDetect').style.display = 'flex';
+            document.getElementById('ecBulkFontSizeDetect').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Détection des tailles en cours...';
             const triggerCount = ecGetSelectedTriggerEmails().length;
             const transactionalCount = ecGetSelectedTransactionalJourneys().length;
             const totalCount = triggerCount + transactionalCount;
@@ -4915,6 +5042,7 @@
                         ? `Appliquer les mêmes changements à ${ecSelectedTransactionalJourneys.size} journey(s) transactionnelle(s).`
                         : `Appliquer les mêmes changements à ${triggerCount} email(s) trigger sélectionné(s).`;
             document.getElementById('ecBulkModal').classList.add('active');
+            ecDetectFontSizes();
         }
 
         function ecReadFileAsBase64(file) {
@@ -5020,9 +5148,10 @@
             const logoFile = document.getElementById('ecBulkLogoFile').files[0];
             const applyBg = document.getElementById('ecBulkApplyBg').checked;
             const bgColor = document.getElementById('ecBulkBgColor').value;
+            const fontSizeReplacements = ecGetFontSizeReplacements();
             const modifications = {};
 
-            if (!logoFile && !applyBg) {
+            if (!logoFile && !applyBg && !fontSizeReplacements.length) {
                 toast('Sélectionnez au moins une modification à appliquer', 'warning');
                 return;
             }
@@ -5034,6 +5163,9 @@
                 }
                 if (applyBg) {
                     modifications.bg_color = bgColor;
+                }
+                if (fontSizeReplacements.length) {
+                    modifications.font_size_replacements = fontSizeReplacements;
                 }
 
                 const payload = {

@@ -1629,6 +1629,27 @@ class SFMCAPI:
                         result = next_result
                         applied.append({'type': 'delete_stamp', 'description': 'Stamp supprime'})
 
+            if raw_mods.get('font_size_replacements'):
+                for rule in raw_mods['font_size_replacements']:
+                    try:
+                        from_size = float(str(rule.get('from_size', 0)).replace('px', '').strip())
+                        to_size = str(rule.get('to_size', '')).strip()
+                        if from_size > 0 and to_size:
+                            if not to_size.endswith('px'):
+                                to_size = to_size + 'px'
+                            fs_str = str(int(from_size)) if from_size == int(from_size) else str(from_size)
+                            before = result
+                            result = re.sub(
+                                r'(font-size\s*:\s*)' + re.escape(fs_str) + r'\s*(?:px|em|rem|pt)?',
+                                r'\g<1>' + to_size,
+                                result,
+                                flags=re.I
+                            )
+                            if result != before:
+                                applied.append({'type': 'font_size_replacements', 'description': 'Tailles de texte remplacees'})
+                    except (ValueError, TypeError):
+                        continue
+
             return result, applied
 
         try:
@@ -1766,6 +1787,37 @@ class SFMCAPI:
                             title_changed = True
             if title_changed:
                 applied.append({'type': 'title_size', 'description': 'Taille des titres modifiee'})
+
+        if mods.get('font_size_replacements'):
+            replacements_map = {}
+            for rule in mods['font_size_replacements']:
+                try:
+                    from_size = float(str(rule.get('from_size', 0)).replace('px', '').strip())
+                    to_size = str(rule.get('to_size', '')).strip()
+                    if from_size > 0 and to_size:
+                        if not to_size.endswith('px'):
+                            to_size = to_size + 'px'
+                        replacements_map[from_size] = to_size
+                except (ValueError, TypeError):
+                    continue
+            if replacements_map:
+                fs_changed = False
+                text_tags = ['td', 'span', 'div', 'p', 'font', 'center', 'strong', 'b', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+                for el in soup.find_all(text_tags):
+                    if is_hidden(el):
+                        continue
+                    style = el.get('style', '') or ''
+                    m = re.search(r'font-size\s*:\s*([\d.]+)', style, re.I)
+                    if m:
+                        current_size = round(float(m.group(1)), 2)
+                        new_sz = replacements_map.get(current_size) or replacements_map.get(int(current_size) if current_size == int(current_size) else None)
+                        if new_sz:
+                            updated = re.sub(r'(font-size\s*:\s*)[\d.]+\s*(?:px|em|rem|pt)?', r'\g<1>' + new_sz, style, flags=re.I)
+                            if updated != style:
+                                el['style'] = updated
+                                fs_changed = True
+                if fs_changed:
+                    applied.append({'type': 'font_size_replacements', 'description': 'Tailles de texte remplacees'})
 
         final_content = str(soup)
         for k, v in placeholders.items():
